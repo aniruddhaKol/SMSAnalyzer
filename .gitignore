@@ -1,0 +1,35 @@
+# Personal inboxes, training exports, device captures and local tooling
+/work/
+**/private/
+*.db
+*.db-*
+*.sqlite*
+*.sms-pack.json
+SMSAnalyzer-SMS-pack*.json
+.env
+.env.*
+!.env.example
+
+# Signing material and generated Android output
+/android/signing/
+/android/work/
+/android/releases/
+/android/assets/ui/
+/android/src/app/adc/smsanalyzer/R.java
+*.keystore
+*.jks
+*.apk
+*.idsig
+*.class
+node_modules/
+
+# Retain local historical design/release files without publishing them
+/SMS Analyzer App UI Mockup.png
+/docs/*
+!/docs/screenshots/
+!/docs/v0.1.54-guide.md
+!/docs/SCREENSHOTS.md
+!/docs/release-v0.1.54.md
+
+.DS_Store
+Thumbs.db

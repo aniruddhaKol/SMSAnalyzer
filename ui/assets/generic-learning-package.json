@@ -1,0 +1,212 @@
+{
+  "schema": "app.adc.smsanalyzer.generic-learning",
+  "version": 1,
+  "appVersion": "0.1.40",
+  "author": "Aniruddha DuttaChowdhury",
+  "brand": "ADChowdhury",
+  "scope": "Generic merchant aliases and categories only",
+  "merchants": [
+    {
+      "name": "Blinkit",
+      "aliases": [
+        "Blinkit",
+        "Blinkit Groceries",
+        "Blinkt"
+      ],
+      "category": "Food & Dining",
+      "topic": "Orders",
+      "origin": "confirmed-category"
+    },
+    {
+      "name": "Amazon",
+      "aliases": [
+        "Amazon",
+        "Amazon India",
+        "Amazon Pay",
+        "Amazon Retail",
+        "Amazon Seller Services",
+        "AMZN",
+        "AMZNPAY"
+      ],
+      "category": "Shopping",
+      "topic": "Orders",
+      "origin": "confirmed-category"
+    },
+    {
+      "name": "Flipkart",
+      "aliases": [
+        "Flipkart",
+        "Flipkart Internet",
+        "Flipkart Payments"
+      ],
+      "category": "Shopping",
+      "topic": "Orders",
+      "origin": "generic"
+    },
+    {
+      "name": "Meesho",
+      "aliases": [
+        "Meesho",
+        "Meesho Technologies"
+      ],
+      "category": "Shopping",
+      "topic": "Orders",
+      "origin": "generic"
+    },
+    {
+      "name": "Myntra",
+      "aliases": [
+        "Myntra"
+      ],
+      "category": "Shopping",
+      "topic": "Orders",
+      "origin": "generic"
+    },
+    {
+      "name": "Ajio",
+      "aliases": [
+        "Ajio"
+      ],
+      "category": "Shopping",
+      "topic": "Orders",
+      "origin": "generic"
+    },
+    {
+      "name": "Nykaa",
+      "aliases": [
+        "Nykaa"
+      ],
+      "category": "Shopping",
+      "topic": "Orders",
+      "origin": "generic"
+    },
+    {
+      "name": "BigBasket",
+      "aliases": [
+        "BigBasket",
+        "BBNow"
+      ],
+      "category": "Food & Dining",
+      "topic": "Orders",
+      "origin": "generic"
+    },
+    {
+      "name": "Zepto",
+      "aliases": [
+        "Zepto"
+      ],
+      "category": "Food & Dining",
+      "topic": "Orders",
+      "origin": "generic"
+    },
+    {
+      "name": "JioMart",
+      "aliases": [
+        "JioMart"
+      ],
+      "category": "Shopping",
+      "topic": "Orders",
+      "origin": "generic"
+    },
+    {
+      "name": "Swiggy",
+      "aliases": [
+        "Swiggy",
+        "Swiggy Instamart",
+        "Instamart"
+      ],
+      "category": "Food & Dining",
+      "topic": "Orders",
+      "origin": "generic"
+    },
+    {
+      "name": "Zomato",
+      "aliases": [
+        "Zomato",
+        "Zomato Limited"
+      ],
+      "category": "Food & Dining",
+      "topic": "Orders",
+      "origin": "confirmed-category"
+    },
+    {
+      "name": "Air India",
+      "aliases": [
+        "Air India",
+        "AirIndia",
+        "Air India Limited"
+      ],
+      "category": "Travel",
+      "topic": "Travel",
+      "origin": "generic"
+    },
+    {
+      "name": "IndiGo",
+      "aliases": [
+        "IndiGo",
+        "Indigo Airlines"
+      ],
+      "category": "Travel",
+      "topic": "Travel",
+      "origin": "generic"
+    },
+    {
+      "name": "IRCTC",
+      "aliases": [
+        "IRCTC"
+      ],
+      "category": "Travel",
+      "topic": "Travel",
+      "origin": "generic"
+    },
+    {
+      "name": "Uber",
+      "aliases": [
+        "Uber"
+      ],
+      "category": "Travel",
+      "topic": "Travel",
+      "origin": "generic"
+    },
+    {
+      "name": "Ola",
+      "aliases": [
+        "Ola Cabs"
+      ],
+      "category": "Travel",
+      "topic": "Travel",
+      "origin": "generic"
+    },
+    {
+      "name": "Airtel",
+      "aliases": [
+        "Airtel",
+        "Bharti Airtel",
+        "Airtel Recharge"
+      ],
+      "category": "Bills & Utilities",
+      "topic": "Bills",
+      "origin": "generic"
+    },
+    {
+      "name": "Jio",
+      "aliases": [
+        "Reliance Jio",
+        "Jio Recharge"
+      ],
+      "category": "Bills & Utilities",
+      "topic": "Bills",
+      "origin": "generic"
+    },
+    {
+      "name": "PVR INOX",
+      "aliases": [
+        "PVR INOX",
+        "PVRINOX"
+      ],
+      "category": "Other",
+      "topic": "Orders",
+      "origin": "generic"
+    }
+  ]
+}

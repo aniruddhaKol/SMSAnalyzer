@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android" package="app.adc.smsanalyzer" android:versionCode="55" android:versionName="0.1.54">
+ <uses-sdk android:minSdkVersion="26" android:targetSdkVersion="34"/>
+ <uses-permission android:name="android.permission.READ_SMS"/>
+
+ <application android:label="SMSAnalyzer" android:icon="@mipmap/app_icon" android:theme="@style/AppTheme" android:allowBackup="false" android:supportsRtl="true" android:usesCleartextTraffic="false" android:debuggable="true">
+  <meta-data android:name="author" android:value="Aniruddha DuttaChowdhury"/>
+  <meta-data android:name="developer_brand" android:value="ADChowdhury"/>
+  <activity android:name=".MainActivity" android:exported="true" android:windowSoftInputMode="adjustResize">
+   <intent-filter><action android:name="android.intent.action.MAIN"/><category android:name="android.intent.category.LAUNCHER"/></intent-filter>
+  </activity>
+ </application>
+</manifest>
+
+
+
+
+
+
+
+
+

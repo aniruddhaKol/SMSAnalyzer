@@ -1,0 +1,8 @@
+Bank/card identification artwork
+Kotak, SBI and Axis favicons are from their respective official websites.
+Scapia artwork is from the Scapia-published Google Play app listing (cards.scapia.android).
+HDFC, ICICI and Federal favicons are from their official bank websites.
+Exact retrieved URLs are recorded in sources.json.
+These marks belong to their respective owners. They identify payment sources; no affiliation or endorsement is implied.
+Air India artwork is from its Air India-published Google Play app listing (com.bets.airindia.ui); URL recorded in sources.json.
+Amazon, Zomato, Airtel, Meesho, PVR and Flipkart icons come from their official websites. Swiggy and Blinkit icons come from their publisher Google Play listings. Exact retrieved URLs are in sources.json. All marks belong to their respective owners.
