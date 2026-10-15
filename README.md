@@ -97,3 +97,30 @@ v0.1.54 was built and installed on Galaxy S25 with the existing package and sign
 ## Attribution
 
 Roboto Mono is included under the [SIL Open Font License](ui/assets/fonts/RobotoMono-OFL.txt). Bank and merchant marks identify transaction sources; they belong to their respective owners and do not imply endorsement. See [artwork attribution](ui/assets/brands/ATTRIBUTION.txt) and [retrieved sources](ui/assets/brands/sources.json). TaskVilla-style themes and the ADChowdhury signature are reused at the author's direction.
+
+
+## License
+
+Copyright © 2026 Aniruddha DuttaChowdhury.
+
+Original project material is licensed under the **PolyForm Noncommercial License 1.0.0**. Personal, academic, research, educational and other qualifying noncommercial uses, modifications and redistribution are permitted in accordance with its terms. Commercial uses outside those permissions require separate authorization from the copyright holder.
+
+Anyone redistributing covered software, including within another application, must pass along the license terms or their URL and all applicable Required Notices identifying the original author, project and source repository. This license does not require publication of the modified application's source code.
+
+For complete terms, see [LICENSE.md](LICENSE.md). Third-party software, libraries, fonts, data and artwork remain subject to their respective licenses; see [third-party notices and unresolved permissions](THIRD-PARTY-NOTICES.md).
+
+### Redistribution attribution example
+
+For an application derived from `SMSAnalyzer`, accompany the distributed software with the license terms or their URL and these notices, for example in licensing documents or an attribution file:
+
+```text
+Based on: SMSAnalyzer
+Required Notice: Copyright © 2026 Aniruddha DuttaChowdhury.
+Required Notice: Original Author: Aniruddha DuttaChowdhury.
+Required Notice: Original Project: SMSAnalyzer.
+Required Notice: Original Source: https://github.com/aniruddhaKol/SMSAnalyzer
+License: PolyForm Noncommercial License 1.0.0
+License terms: https://polyformproject.org/licenses/noncommercial/1.0.0
+```
+
+An About screen acknowledgment is encouraged. The standard license does not impose separate app-store attribution or UI-branding requirements, or require public disclosure of modified source code.
