@@ -2,9 +2,9 @@
 
 Android SMS insights and local learning by **Aniruddha DuttaChowdhury** · **ADChowdhury**.
 
-**Latest source version:** 0.1.66 · **Application ID:** `app.adc.smsanalyzer`
+**Latest source version:** 0.1.67 · **Application ID:** `app.adc.smsanalyzer`
 
-[Latest published APK](https://github.com/aniruddhaKol/SMSAnalyzer/releases/latest) · [Published v0.1.54 release notes](docs/release-v0.1.54.md) · [Screenshot details](docs/SCREENSHOTS.md)
+[Latest published APK](https://github.com/aniruddhaKol/SMSAnalyzer/releases/latest) · [Published v0.1.67 release notes](docs/release-v0.1.67.md) · [Screenshot details](docs/SCREENSHOTS.md)
 
 SMSAnalyzer reads permitted inbox messages on the device, identifies payments and credits, groups spending, and lets you correct classifications through a Learning Centre. The interface follows the TaskVilla Wood, Stone and Brick themes.
 
@@ -51,9 +51,9 @@ SMS interpretation is heuristic: unsupported wording, unclear ownership, transac
 
 ## Install
 
-The current source is v0.1.66. The latest published APK release remains v0.1.54; this source update does not publish a new binary release. Build the current source for the latest changes.
+The current source and latest published APK are v0.1.67, including the BookShelves theme, 2×2 theme selector and Others fallback for uncategorised transactions.
 
-Download `smsanalyzer-v0.1.54.apk` from the [release](https://github.com/aniruddhaKol/SMSAnalyzer/releases/tag/v0.1.54), install it on Android 8.0/API 26 or newer, then grant SMS access when requested. Pull down on Home to refresh.
+Download `smsanalyzer-v0.1.67.apk` from the [release](https://github.com/aniruddhaKol/SMSAnalyzer/releases/tag/v0.1.67), install it on Android 8.0/API 26 or newer, then grant SMS access when requested. Pull down on Home to refresh. Google Play Protect may block browser-downloaded APKs requesting SMS access; a valid signature does not guarantee installation approval.
 
 This is the current development/review build. The released APK retains the existing signing identity for compatible updates. A locally rebuilt APK signed with a different key cannot replace that installation as an in-place update.
 
@@ -76,7 +76,7 @@ Requires Windows PowerShell, Android SDK platform 36/build-tools 36.0.0 and JDK 
 ./android/build.ps1
 ```
 
-The script uses the existing local review keystore when present and generates a new local review key when it is absent. Signing files are ignored by Git. Keep the original key privately if producing updates for existing installations; generating another key changes signature compatibility. Output is written under `android/releases/v0.1.66/`.
+The script uses the existing local review keystore when present and generates a new local review key when it is absent. Signing files are ignored by Git. Keep the original key privately if producing updates for existing installations; generating another key changes signature compatibility. Output is written under `android/releases/v0.1.67/`.
 
 ## Reproduce screenshots
 
