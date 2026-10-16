@@ -376,3 +376,11 @@ dialog.account-confirm-dialog[open]{height:auto;max-width:350px;padding:18px}
 .overview-stats .overview-stat-copy small{grid-column:1/-1;grid-row:1;text-align:center;margin-left:-4px;margin-right:-6px}
 .overview-stat-icon{grid-column:1;grid-row:2}
 .overview-stats .overview-stat-copy strong{grid-column:2;grid-row:2;text-align:center;margin:0 -6px 0 calc(-1 * var(--stat-gap))}
+
+/* v0.1.67: BookShelves uses the shared application theme surfaces. */
+#app[data-theme=bookshelves]{background-image:url('assets/taskvilla-bookshelves.png');--texture:url('assets/taskvilla-bookshelves.png');--chrome:#503321;--control-overlay:#24160fcc;--control-border:#be9467}
+.themes{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px}
+.theme-preview{height:72px;background-size:cover;background-position:center}
+#app[data-theme=bookshelves] .settings{background:#dcd0bf}
+#app[data-theme=bookshelves] .refresh-indicator{background:var(--chrome);color:#fff8ef;border-color:var(--control-border)}
+#app[data-theme=bookshelves]~#toast{background:#503321;border:1px solid #be9467}

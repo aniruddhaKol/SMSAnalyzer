@@ -1,6 +1,6 @@
 // Aniruddha DuttaChowdhury · ADChowdhury · app.adc.smsanalyzer
 // Layouts from the supplied screen reference; all figures use loaded data.
-const spendNames=['Food & Dining','Shopping','Bills & Utilities','EMI & Loans','Travel','Other'];
+const spendNames=['Food & Dining','Shopping','Bills & Utilities','EMI & Loans','Travel','Others'];
 const spendColors=['#d29342','#9274a2','#568363','#654633','#b86383','#aaa395'];
 const groupNames=['Debits','Credits','OTP & Security','Bills','Orders','Travel','Promotions','EMI & Insurance','Government','Healthcare','Personal','Spam & Fraud','Others','Investments','Transfers','Food & Dining','Salary'];
 const groupColors=['#d29342','#568363','#9274a2','#a98657','#66899c','#b86383','#8c928b','#654633','#9274a2','#568363','#a98657','#b34d3d','#aaa395','#668979','#66899c','#d29342','#568363'];

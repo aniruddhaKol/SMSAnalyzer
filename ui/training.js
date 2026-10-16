@@ -35,6 +35,8 @@ function analyzeWithTraining(raw,config=training){syncTrainingCategories(config)
  }
  matchOwnedTransfers(records,config);
  for(const rule of [...config.rules,...(config.corrections||[])].filter(r=>r.type==='duplicate')){const keep=records.find(m=>recordKey(m)===rule.keep),drop=records.find(m=>recordKey(m)===rule.drop);if(keep&&drop&&!keep.duplicate&&!drop.duplicate&&Math.abs((keep.debit||keep.credit)-(drop.debit||drop.credit))<.005&&(keep.debit>0)===(drop.debit>0)){drop.duplicate=true;drop.duplicateReason='Confirmed duplicate · '+rule.id;drop.amount=0;drop.credit=0;}}
+ // Unknown completed transactions retain direction and totals, but belong to Others.
+ for(const m of records){if(!m.ignored&&!m.customCategoryId&&!m.trainingCategory&&!m.trainingTreatment&&!m.isInvestment&&!m.incomeType&&m.spendGroup===5&&[0,1].includes(m.group)&&!['own','own-credit','card-settlement'].includes(m.transferKind)&&(m.debit>0||m.credit>0))m.group=12;}
  return records;}
 function rebuildTraining(){messages=analyzeWithTraining(rawMessages);analysisCleared=false;}
 function trainingBase(){return reconcileTransactions(assembleSmsRecords(rawMessages).map(m=>classify({...m})));}
