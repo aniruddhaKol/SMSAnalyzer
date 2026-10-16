@@ -384,3 +384,18 @@ dialog.account-confirm-dialog[open]{height:auto;max-width:350px;padding:18px}
 #app[data-theme=bookshelves] .settings{background:#dcd0bf}
 #app[data-theme=bookshelves] .refresh-indicator{background:var(--chrome);color:#fff8ef;border-color:var(--control-border)}
 #app[data-theme=bookshelves]~#toast{background:#503321;border:1px solid #be9467}
+
+/* TaskVilla author panel: selected-theme texture and compact equal contact tiles. */
+#app .author{background-color:var(--chrome);background-image:linear-gradient(var(--control-overlay),var(--control-overlay)),var(--texture);background-size:cover;background-position:center;border-color:var(--control-border);color:#fff8ef;padding:14px 12px}
+.author .label{color:#e1d9cc;font-size:9px}
+.author .summary{gap:9px}
+.author .summary img{width:42px;height:42px;object-fit:contain;background:#fff;flex-shrink:0}
+.author strong{font-size:12px;font-weight:600;line-height:1.5;overflow-wrap:anywhere}
+.author .contacts{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px;margin-top:10px}
+.author .contacts a{display:flex;flex-direction:column;justify-content:center;align-items:center;gap:5px;min-width:0;min-height:56px;padding:6px 4px;font-size:9px;background:#454038;border:1px solid #81786b;color:#fff8ef;border-radius:5px}
+.author .contacts a>.ic{display:block;width:16.8px;height:16.8px;margin:0}
+.author .contacts .contact-linkedin{display:flex;align-items:center;justify-content:center;width:18.9px;height:18.9px;background:#0a66c2;color:#fff;border-radius:4px}
+.author .contacts .contact-linkedin .ic{width:15.4px;height:15.4px;margin:0}
+.author .contacts a:hover{border-color:#c5bba9;background:#5c554c}
+.author .contacts a:focus-visible{outline:2px solid #d9edcc;outline-offset:-3px}
+.author .contacts a:active{transform:translateY(2px);filter:brightness(.96)}
