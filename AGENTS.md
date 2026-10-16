@@ -36,3 +36,11 @@ Never merge messages solely because they arrived together. Reassemble only compl
 Home Latest payments is a view within the existing payee section, not a new page. Keep Top payee scope/range when switching, hide the period toggle controls in Latest payments, and reuse parsed outgoing/duplicate flags. Label SMS received-time fallback when no transaction date can be extracted. Do not restore the removed SMS archive Settings block.
 
 Keep the Home payee dropdown and period toggle on one row using compact padding. All custom dropdowns must dismiss on outside taps, including when another dropdown opens; native selects keep platform dismissal. Preserve option selection and keyboard Escape behavior.
+
+Category precedence must use the newest applicable category correction across rule types, including legacy individual corrections; do not let processing order silently override a newer user choice. Keep payment treatment independent and preserve undo. Payee preview Back/Apply actions remain docked below a scrolling form/SMS pane, with the header fixed and all focus borders inset. Test scroll, pagination and short keyboard-sized viewports.
+
+Account edit controls reuse the exact Settings budget/SMS access edit bevel, dimensions and SVG size. Destructive account controls use TaskVilla pale-red trash styling. Removing an owned account opens a compact Cancel/Remove confirmation only, without transaction details or analysis impact previews. Cancel never changes saved ownership.
+
+Do not add plus icons to compact Add category or Add recipient controls: labels must remain on one line. Check rendered labels at narrow phone widths and the actual device font scale; flag wrapping, clipping or layout regressions explicitly before delivering. Account editors keep Back left and Preview right in a fixed bottom action bar with the fields scrolling above it.
+
+For optical icon/text alignment, measure the painted SVG path including its stroke, rather than the wrapper or full viewBox. Centre numeric glyph ink using font bounds, excluding side bearings. Verify against actual screenshot pixels and report measured differences honestly.

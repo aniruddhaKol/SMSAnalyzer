@@ -1,0 +1,50 @@
+// Synthetic fixtures only. Never include a personal inbox or ownership configuration.
+const {chromium}=require('playwright'),assert=require('node:assert/strict'),path=require('node:path'),{pathToFileURL}=require('node:url');
+(async()=>{
+ const browser=await chromium.launch({channel:'msedge',headless:true}),page=await browser.newPage({viewport:{width:393,height:852}}),errors=[];
+ page.on('pageerror',e=>errors.push(e.message));
+ await page.addInitScript(()=>localStorage.setItem('smsanalyzer.settings',JSON.stringify({started:true,range:30,durationVersion:1})));
+ await page.goto(pathToFileURL(path.resolve(__dirname,'../ui/index.html')).href);
+ const result=await page.evaluate(()=>{
+  training=defaultTraining();training.accounts=[{id:'a',bank:'HDFC BANK',last4:'1111'},{id:'b',bank:'KOTAK BANK',last4:'2222'},{id:'c',bank:'SBI',last4:'3333'},{id:'p',bank:'SBI',last4:'4444',type:'ppf'}];training.ownAliases=['own.demo@upi'];training.ownNames=['DEMO OWNER'];
+  const now=Date.now(),raw=[],add=(id,sender,body,offset=0)=>raw.push({id,sender,body,date:now+offset});
+  add(1,'AD-HDFCBK-S','IMPS INR 10,000.00 sent from HDFC Bank A/c XX1111 on 16-10-26 To A/c xxxxx2222 Ref-111222333444.');
+  add(2,'AD-KOTAKB-S','Received Rs.10000 in your Kotak Bank A/c X2222 by an A/c linked to mobile x123. IMPS Ref no 111222333444.');
+  add(3,'AD-SBIINB-S','NEFT from Ac X3333 for Rs.3,000 with UTR DEMO123456 dt 16.10.26 to Savings Ac X2222 sent from YONO.');
+  add(4,'AD-SBIINB-S','Your NEFT DEMO123456 for INR 3000 credited to Beneficiary AC NO. XX2222.');
+  add(5,'AD-SBIINB-S','Transfer from Ac X3333 for Rs.500 with Ref TESTPPF123 dt 16.10.26 to DEMO OWNER Ac X4444 done from YONO.');
+  add(6,'AD-SBIINB-S','Your A/C XX4444 Credited INR 500 -Deposit by transfer from Mr. DEMO OWNER.');
+  add(7,'AD-SBIINB-S','Your A/C XX3333 Debited INR 500 -Transferred to Mr. DEMO OWNER.');
+  add(8,'AD-KOTAKB-S','Sent INR 200 from Kotak Bank AC X2222 to own.demo@upi Ref OWN123456789.');
+  add(9,'AD-SBIINB-S','Your A/C XX4444 Debited INR 50 -Transferred to PPF PENALTY A/C.');
+  add(10,'AD-SBIINB-S','Your EMI repayment of INR 4000 successfully collected from account XX3333. Ref EMI123456789.');
+  add(11,'AD-SBIINB-S','NEFT from Ac X3333 for Rs.700 with UTR THIRD123456 dt 16.10.26 to Other person Ac X9999 sent from YONO.');
+  add(12,'AD-KOTAKB-S','Received INR 800 in Kotak Bank A/c X2222 by a/c linked to mobile x123 Ref UNKNOWN123456.');
+  add(13,'AD-HDFCBK-S','Sent INR 800 from HDFC Bank account XX1111 to account XX9999 Ref DIFFERENT123456.');
+  add(14,'AD-KOTAKB-S','Sent INR 900 from Kotak Bank AC X2222 to X9998 Ref UNKNOWN999888.');
+  add(15,'AD-HDFCBK-S','IMPS INR 10,000.00 sent from HDFC Bank A/c XX1111 on 16-10-26 To A/c xxxxx2222 Ref-111222333444.',1000);
+  add(16,'AD-SBIINB-S','Your A/C XX3333 Debited INR 2000 -Transferred to Mr. DEMO OWNER.');
+  add(17,'AD-SBIINB-S','NEFT from Ac X3333 for Rs.600 with UTR FAIL123456 dt 16.10.26 to Savings Ac X2222 sent from YONO. Transaction failed.');
+  nativeMessages(raw);return messages.map(m=>({id:m.id,self:isSelfTransfer(m),amount:m.amount,credit:totalCredit([m]),duplicate:!!m.duplicate,group:m.group,debit:m.debit}));
+ });
+ for(const id of [1,2,3,5,6,7,8]){const m=result.find(m=>m.id===id);assert.ok(m.self,'self '+id);assert.equal(m.amount,0);assert.equal(m.credit,0);}
+ for(const id of [4,9,10,11,12,13,14,16,17])assert.equal(result.find(m=>m.id===id).self,false,'not self '+id);
+ assert.equal(result.find(m=>m.id===4).credit,0);assert.equal(result.find(m=>m.id===15).duplicate,true);assert.equal(result.find(m=>m.id===17).amount,0);assert.equal(result.find(m=>m.id===14).group,12);
+ await page.evaluate(()=>go('training'));assert.equal(await page.locator('.learning-topic').count(),0);assert.ok(await page.getByRole('button',{name:'Accounts',exact:true}).count());
+ await page.evaluate(()=>learningOpen(recordKey(messages.find(m=>m.id===14)),'identified'));
+ assert.equal(await page.locator('[name=learn-choice]').count(),0);assert.equal(await page.locator('#learn-category option[value="action:own"]').count(),1);
+ await page.locator('#learn-category').selectOption('action:own');await page.locator('#learn-remember').uncheck();
+ await page.getByRole('button',{name:'Save & Next',exact:true}).click();
+ assert.deepEqual(await page.evaluate(()=>({self:isSelfTransfer(messages.find(m=>m.id===14)),rules:training.rules.length,corrections:training.corrections.length})),{self:true,rules:0,corrections:1});
+ await page.evaluate(()=>{learning.context=null;learning.reviewReturn=null;learning.step='home';render()});
+ assert.equal(await page.locator('[data-learning=categoryRecords]').count(),0);
+ await page.locator('[data-learning=identified]').click();await page.locator('[data-learning=openRecord]').first().click();
+ await page.evaluate(()=>learningBack());assert.equal(await page.evaluate(()=>learning.step),'records');
+ await page.evaluate(()=>{learningOpen(recordKey(messages.find(m=>m.id===14)),'identified');training.categories.push({id:'legal-demo',name:'Legal',color:'#66899c'});render()});
+ const categories=await page.locator('#learn-category option').allTextContents();assert.deepEqual(categories,[...categories].sort((a,b)=>a.localeCompare(b,'en',{sensitivity:'base'})));assert.equal(categories.some(x=>/Choose category|Automatic category/i.test(x)),false);
+ assert.equal(await page.evaluate(()=>{const select=document.createElement('select');select.innerHTML=trainingCategoryOptions();return select.value}),'action:others');
+ assert.equal(await page.locator('#learn-category').inputValue(),'action:own');
+ await page.setViewportSize({width:320,height:500});await page.evaluate(()=>{learningBack();render()});
+ assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));
+ assert.deepEqual(errors,[]);await browser.close();console.log('PASS owned routes, YONO parsing, PPF paired alerts, aliases, beneficiary confirmations, duplicate/mismatch/fee/loan/failed guards; compact UI, category treatment, single correction and return path');
+})().catch(e=>{console.error(e);process.exit(1)});

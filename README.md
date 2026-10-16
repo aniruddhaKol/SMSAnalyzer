@@ -2,15 +2,15 @@
 
 Android SMS insights and local learning by **Aniruddha DuttaChowdhury** · **ADChowdhury**.
 
-**Latest version:** 0.1.54 · **Application ID:** `app.adc.smsanalyzer`
+**Latest source version:** 0.1.66 · **Application ID:** `app.adc.smsanalyzer`
 
-[Download the latest APK](https://github.com/aniruddhaKol/SMSAnalyzer/releases/latest) · [Release notes](docs/release-v0.1.54.md) · [Screenshot details](docs/SCREENSHOTS.md)
+[Latest published APK](https://github.com/aniruddhaKol/SMSAnalyzer/releases/latest) · [Published v0.1.54 release notes](docs/release-v0.1.54.md) · [Screenshot details](docs/SCREENSHOTS.md)
 
 SMSAnalyzer reads permitted inbox messages on the device, identifies payments and credits, groups spending, and lets you correct classifications through a Learning Centre. The interface follows the TaskVilla Wood, Stone and Brick themes.
 
 ## Screenshots
 
-These are actual v0.1.54 interface renders with **synthetic sample SMS**, not a real inbox. Native Android system bars are not included. Select an image to see it at full resolution.
+These are actual v0.1.66 interface renders with **synthetic sample SMS**, not a real inbox. Native Android system bars are not included. Select an image to see it at full resolution.
 
 | Home overview · Wood | Top payee · Stone |
 | --- | --- |
@@ -26,7 +26,7 @@ These are actual v0.1.54 interface renders with **synthetic sample SMS**, not a 
 
 | Settings · Stone | Learning Centre · Wood |
 | --- | --- |
-| <img src="docs/screenshots/settings.png" alt="Settings with default period, monthly budget, themes and training entry" width="300"> | <img src="docs/screenshots/learning-centre.png" alt="Learning progress and actionable review groups" width="300"> |
+| <img src="docs/screenshots/settings.png" alt="Settings with default period, monthly budget, themes and training entry" width="300"> | <img src="docs/screenshots/learning-centre.png" alt="Learning progress and compact review and management controls" width="300"> |
 
 ## Features
 
@@ -35,6 +35,9 @@ These are actual v0.1.54 interface renders with **synthetic sample SMS**, not a 
 - Latest payments uses an extracted transaction date/time when supported and labels SMS received-time fallback. Existing duplicate and payment-treatment rules exclude duplicate notices, internal movements and non-payments.
 - Category amounts, source SMS previews, spending trends, bill/OTP/spam estimates and bank/merchant icons.
 - Learning Centre under Settings: correct recipients, categories, income and self-transfers; preview historical matches; save reusable rules or individual corrections; undo saved corrections; add custom categories.
+- Owned accounts can be saved with account types and aliases, or detected from repeated source-account transaction evidence. Internal transfers between verified owned accounts are excluded from both spending and income; uncertain transfers remain Others.
+- An offline catalogue includes 1,520 institution entries, including historical names. Official logos are bundled where retrieved; other entries use neutral bank symbols. Bank and account-type selectors are alphabetically sorted.
+- Bills due includes detected upcoming dates beyond the current week and opens the original SMS. Home notice cards use painted icon edges and number glyph bounds for optical alignment.
 - Conservative multipart reconstruction and related-message learning. Separate messages are not merged merely because they arrive together.
 - Pull to refresh; long-press displayed SMS content to copy the full message. Dropdowns dismiss on outside taps.
 
@@ -47,6 +50,8 @@ Import runs on app open and pull to refresh. Messages deleted before their first
 SMS interpretation is heuristic: unsupported wording, unclear ownership, transaction-date formats and overlapping alerts can affect results. The app keeps originals available for review. It does not send or delete inbox SMS.
 
 ## Install
+
+The current source is v0.1.66. The latest published APK release remains v0.1.54; this source update does not publish a new binary release. Build the current source for the latest changes.
 
 Download `smsanalyzer-v0.1.54.apk` from the [release](https://github.com/aniruddhaKol/SMSAnalyzer/releases/tag/v0.1.54), install it on Android 8.0/API 26 or newer, then grant SMS access when requested. Pull down on Home to refresh.
 
@@ -71,7 +76,7 @@ Requires Windows PowerShell, Android SDK platform 36/build-tools 36.0.0 and JDK 
 ./android/build.ps1
 ```
 
-The script uses the existing local review keystore when present and generates a new local review key when it is absent. Signing files are ignored by Git. Keep the original key privately if producing updates for existing installations; generating another key changes signature compatibility. Output is written under `android/releases/v0.1.54/`.
+The script uses the existing local review keystore when present and generates a new local review key when it is absent. Signing files are ignored by Git. Keep the original key privately if producing updates for existing installations; generating another key changes signature compatibility. Output is written under `android/releases/v0.1.66/`.
 
 ## Reproduce screenshots
 
@@ -86,17 +91,24 @@ Use `SCREENSHOT_BROWSER` to choose another installed Playwright Chromium channel
 
 ## Validation
 
-Run the included dropdown, period restoration and control-alignment check after installing Playwright:
+The Android v0.1.66 build was installed on Galaxy S25 with the existing package and signing certificate. Live checks confirmed account editing/removal, saved-rule preservation, alphabetical selectors and upcoming-bill SMS previews. The notice-card alignment was checked against native screenshot pixels, including the visible SVG stroke and number glyphs. Device captures and inboxes are private and excluded from this repository.
+
+With Node.js, Playwright and Microsoft Edge available, run:
 
 ```powershell
 node scripts/verify-ui.cjs
+node scripts/verify-category-replacement.cjs
+node scripts/verify-payee-preview.cjs
+node scripts/verify-owned-transfers.cjs
+node scripts/verify-bank-accounts.cjs
+node scripts/verify-overview-alerts.cjs
 ```
 
-v0.1.54 was built and installed on Galaxy S25 with the existing package and signing certificate. Browser geometry checks confirmed matching 42px dropdown/toggle height and alignment at 320, 360 and 393px. Recent regression checks cover category navigation, financial classification and learning, archive retention/encryption, multipart/context matching, long-press copy, payment pagination, date fallback and dropdown dismissal. See the [version guide](docs/v0.1.54-guide.md).
+These synthetic regressions cover dropdown dismissal and period restoration, newest-category precedence and undo, fixed preview actions, ownership and duplicate guards, compact controls, account detection and removal confirmation, sorted selectors, upcoming dates and SMS pagination. Earlier archive/encryption and native clipboard checks are documented in the [historical version guide](docs/v0.1.54-guide.md).
 
 ## Attribution
 
-Roboto Mono is included under the [SIL Open Font License](ui/assets/fonts/RobotoMono-OFL.txt). Bank and merchant marks identify transaction sources; they belong to their respective owners and do not imply endorsement. See [artwork attribution](ui/assets/brands/ATTRIBUTION.txt) and [retrieved sources](ui/assets/brands/sources.json). TaskVilla-style themes and the ADChowdhury signature are reused at the author's direction.
+Roboto Mono is included under the [SIL Open Font License](ui/assets/fonts/RobotoMono-OFL.txt). Bank and merchant marks identify transaction sources; they belong to their respective owners and do not imply endorsement. See [artwork attribution](ui/assets/brands/ATTRIBUTION.txt) and [retrieved sources](ui/assets/brands/sources.json). Bank directory data is from Razorpay IFSC under its [MIT licence](ui/assets/banks/IFSC-LICENSE.txt), supplemented with RBI directory names. See [bank catalogue/artwork provenance](ui/assets/banks/SOURCES.json) and [bank artwork attribution](ui/assets/banks/ATTRIBUTION.txt). TaskVilla-style themes and the ADChowdhury signature are reused at the author's direction.
 
 
 ## License

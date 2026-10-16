@@ -30,5 +30,5 @@ const fs=require('node:fs'),path=require('node:path'),{pathToFileURL}=require('n
  await page.evaluate(()=>{payeeView='latest';render();});await capture('latest-payments.png','home','stone',true);
  await capture('categories.png','categories','brick');await capture('trends.png','insights','wood');
  await capture('alerts.png','alerts','brick');await capture('settings.png','settings','stone');await capture('learning-centre.png','training','wood');
- await browser.close();if(errors.length)throw Error(errors.join('\n'));console.log('Captured eight v0.1.54 screens using synthetic SMS only.');
+ await browser.close();if(errors.length)throw Error(errors.join('\n'));console.log('Captured eight current-source screens using synthetic SMS only.');
 })().catch(e=>{console.error(e);process.exit(1)});

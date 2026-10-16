@@ -20,11 +20,12 @@ function describePayment(m){
  m.sourceCard=/\bscapia\b/i.test(m.body)&&m.source.label!=='Scapia'?'Scapia':null;
  const instructionSource=m.body.match(/\bfrom\s+([xX*0-9]{4,})\s+to\s+bene/i);m.sourceAccount=(instructionSource?instructionSource[1].replace(/\D/g,'').slice(-4):null)||accountToken(m.body)||accountToken(m.body.replace(/\bcard\s*(?:no\.?|number)?\s*/ig,'account '));
  m.reference=referenceToken(m.body);
+ if(beneficiaryConfirmation(m.body)){m.credit=0;m.amount=0;m.debit=0;m.confirmationAmount=transactionAmount(m.body);m.sourceAccount=null;}
  m.payee=extractPayee(m.body);
  m.isEmiRepayment=m.debit>0&&m.loan&&/\b(?:emi|repayment|repaid|instalment|installment)\b|standing instruction[\s\S]*\bloan\b/i.test(m.body);
  m.isBankTransfer=m.debit>0&&!m.loan&&/\b(?:transferred|transfer|sent\s+(?:rs\.?|inr|₹)|neft|imps|rtgs|trf to)\b/i.test(m.body);
  const target=m.body.match(/\b(?:transferred to|transfer to|to\s+(?:(?:your|bene(?:ficiary)?)\s+)?(?:a\/?c|account))\b[\s\S]{0,120}/i);
- m.destinationAccount=target?accountToken(target[0]):null;
+ m.destinationAccount=destinationToken(m.body)||(target?accountToken(target[0]):null);
  const explicitOwn=m.isBankTransfer&&/\b(?:self[- ]?transfer|own account|between (?:my|your|own) accounts)\b/i.test(m.body);
  const cardSettlement=m.debit>0&&!m.loan&&/\bcredit card\b[\s\S]{0,50}\b(?:payment|bill|repayment)\b|\bpayment\b[\s\S]{0,50}\bcredit card\b/i.test(m.body);
  m.transferKind=explicitOwn?'own':cardSettlement?'card-settlement':m.isBankTransfer?'unmatched':null;
@@ -34,16 +35,6 @@ function describePayment(m){
 function reconcileTransactions(records){
  records.forEach(m=>{m.detectedCredit=m.credit;m.detectedDebit=m.debit;});
  consolidateAlerts(records);
- const isBank=m=>/bank|^SBI$/i.test(m.source.label);
- const accounts=new Set(records.filter(m=>isBank(m)&&m.sourceAccount&&(m.debit>0||m.credit>0)).map(m=>m.sourceAccount));
- const credits=new Map();records.filter(m=>!m.duplicate&&isBank(m)&&m.credit>0&&m.reference&&!m.loan&&!/refund|reversal/i.test(m.body)).forEach(m=>{const list=credits.get(m.reference)||[];list.push(m);credits.set(m.reference,list);});
- for(const m of records){if(m.duplicate||!m.isBankTransfer||m.transferKind==='own')continue;
-  const matches=(credits.get(m.reference)||[]).filter(c=>Math.abs(c.credit-m.debit)<0.005&&Math.abs(c.date-m.date)<=2*86400000&&c.source.key!==m.source.key);
-  const ownerNamed=false; // Ownership comes from account evidence or explicit local rules.
-  const ownedTarget=m.destinationAccount&&accounts.has(m.destinationAccount)&&m.destinationAccount!==m.sourceAccount&&(ownerNamed||/\bto\s+your\s+(?:a\/?c|account)\b/i.test(m.body));
-  if(matches.length===1||ownedTarget){m.transferKind='own';m.amount=0;m.group=14;if(matches.length===1){matches[0].transferKind='own-credit';matches[0].group=14;}}
-  else if(ownerNamed)m.transferKind='possible-own';
- }
  return records;
 }
 function consolidateAlerts(records){
