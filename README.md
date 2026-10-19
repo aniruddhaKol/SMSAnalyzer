@@ -2,11 +2,11 @@
 
 Android SMS insights and local learning by **Aniruddha DuttaChowdhury** · **ADChowdhury**.
 
-**Latest source version:** 0.1.69 · **Application ID:** `app.adc.smsanalyzer`
+**Latest source version:** 0.1.85 · **Application ID:** `app.adc.smsanalyzer`
 
-[Latest published APK](https://github.com/aniruddhaKol/SMSAnalyzer/releases/latest) · [Published v0.1.69 release notes](docs/release-v0.1.69.md) · [Screenshot details](docs/SCREENSHOTS.md)
+[Latest published APK](https://github.com/aniruddhaKol/SMSAnalyzer/releases/latest) · [Published v0.1.85 release notes](docs/release-v0.1.85.md) · [Screenshot details](docs/SCREENSHOTS.md)
 
-SMSAnalyzer reads permitted inbox messages on the device, identifies payments and credits, groups spending, and lets you correct classifications through a Learning Centre. The interface follows the TaskVilla Wood, Stone and Brick themes.
+SMSAnalyzer reads permitted inbox messages on the device, identifies payments and credits, groups spending, and lets you correct classifications through a Learning Centre. The interface follows the TaskVilla Wood, Stone, Brick and BookShelves themes.
 
 ## Screenshots
 
@@ -39,7 +39,10 @@ These are actual v0.1.66 interface renders with **synthetic sample SMS**, not a 
 - An offline catalogue includes 1,520 institution entries, including historical names. Official logos are bundled where retrieved; other entries use neutral bank symbols. Bank and account-type selectors are alphabetically sorted.
 - Bills due includes detected upcoming dates beyond the current week and opens the original SMS. Home notice cards use painted icon edges and number glyph bounds for optical alignment.
 - Conservative multipart reconstruction and related-message learning. Separate messages are not merged merely because they arrive together.
-- Pull to refresh; long-press displayed SMS content to copy the full message. Dropdowns dismiss on outside taps.
+- Pull to refresh; long-press displayed SMS content to copy the full message. Dropdowns dismiss on outside taps. Buttons show a matching pressed bevel before activation.
+- Categories uses a donut for SMS category-tag shares; Home uses expense amounts. Unified Travel and Food & Dining choices preserve existing corrections.
+- Learning management provides Recipients, My accounts, Rules and Categories tabs. Custom categories support names, emoji and colours; default names remain fixed. Bill and flagged-SMS lists reuse category review/editing.
+- Encrypted analysis caching restores Home before background inbox scanning. Large cache payloads are read in bounded chunks to avoid Android SQLite cursor limits.
 
 ## Data and privacy
 
@@ -51,9 +54,9 @@ SMS interpretation is heuristic: unsupported wording, unclear ownership, transac
 
 ## Install
 
-The current source and latest published APK are v0.1.69, including the TaskVilla-style themed author panel, prefilled feedback email, the BookShelves theme, 2×2 theme selector and Others fallback for uncategorised transactions.
+The current source and latest published APK are v0.1.85. This release fixes large analysis-cache reads and restores cached Home data before background inbox scanning. It also includes unified category choices, editable bill/spam SMS, category appearance controls, the Categories donut and consistent themed controls.
 
-Download `smsanalyzer-v0.1.69.apk` from the [release](https://github.com/aniruddhaKol/SMSAnalyzer/releases/tag/v0.1.69), install it on Android 8.0/API 26 or newer, then grant SMS access when requested. Pull down on Home to refresh. Google Play Protect may block browser-downloaded APKs requesting SMS access; a valid signature does not guarantee installation approval.
+Download `smsanalyzer-v0.1.85.apk` from the [release](https://github.com/aniruddhaKol/SMSAnalyzer/releases/tag/v0.1.85), install it on Android 8.0/API 26 or newer, then grant SMS access when requested. Pull down on Home to refresh. Google Play Protect may block browser-downloaded APKs requesting SMS access; a valid signature does not guarantee installation approval.
 
 This is the current development/review build. The released APK retains the existing signing identity for compatible updates. A locally rebuilt APK signed with a different key cannot replace that installation as an in-place update.
 
@@ -76,7 +79,7 @@ Requires Windows PowerShell, Android SDK platform 36/build-tools 36.0.0 and JDK 
 ./android/build.ps1
 ```
 
-The script uses the existing local review keystore when present and generates a new local review key when it is absent. Signing files are ignored by Git. Keep the original key privately if producing updates for existing installations; generating another key changes signature compatibility. Output is written under `android/releases/v0.1.69/`.
+The script uses the existing local review keystore when present and generates a new local review key when it is absent. Signing files are ignored by Git. Keep the original key privately if producing updates for existing installations; generating another key changes signature compatibility. Output is written under `android/releases/v0.1.85/`.
 
 ## Reproduce screenshots
 

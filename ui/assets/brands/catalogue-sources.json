@@ -1,0 +1,489 @@
+{
+  "reference": "User supplied smsanalyzer_merchant_catalogue.html",
+  "retrieved": "2026-10-17",
+  "headerVerification": "Unverified matching suggestions",
+  "icons": [
+    {
+      "name": "Amazon India",
+      "domain": "amazon.in",
+      "asset": "assets/brands/catalogue-amazonindia.png",
+      "source": "https://www.google.com/s2/favicons?domain=amazon.in&sz=64",
+      "status": "downloaded"
+    },
+    {
+      "name": "Flipkart",
+      "domain": "flipkart.com",
+      "asset": "assets/brands/catalogue-flipkart.png",
+      "source": "https://www.google.com/s2/favicons?domain=flipkart.com&sz=64",
+      "status": "downloaded"
+    },
+    {
+      "name": "Myntra",
+      "domain": "myntra.com",
+      "asset": "assets/brands/catalogue-myntra.png",
+      "source": "https://www.google.com/s2/favicons?domain=myntra.com&sz=64",
+      "status": "downloaded"
+    },
+    {
+      "name": "AJIO",
+      "domain": "ajio.com",
+      "asset": "assets/brands/catalogue-ajio.png",
+      "source": "https://www.google.com/s2/favicons?domain=ajio.com&sz=64",
+      "status": "downloaded"
+    },
+    {
+      "name": "Meesho",
+      "domain": "meesho.com",
+      "asset": "assets/brands/catalogue-meesho.png",
+      "source": "https://www.google.com/s2/favicons?domain=meesho.com&sz=64",
+      "status": "downloaded"
+    },
+    {
+      "name": "Nykaa",
+      "domain": "nykaa.com",
+      "asset": "assets/brands/catalogue-nykaa.png",
+      "source": "https://www.google.com/s2/favicons?domain=nykaa.com&sz=64",
+      "status": "downloaded"
+    },
+    {
+      "name": "Tata CLiQ",
+      "domain": "tatacliq.com",
+      "asset": "assets/brands/catalogue-tatacliq.png",
+      "source": "https://www.google.com/s2/favicons?domain=tatacliq.com&sz=64",
+      "status": "downloaded"
+    },
+    {
+      "name": "JioMart",
+      "domain": "jiomart.com",
+      "asset": "assets/brands/catalogue-jiomart.png",
+      "source": "https://www.google.com/s2/favicons?domain=jiomart.com&sz=64",
+      "status": "downloaded"
+    },
+    {
+      "name": "Reliance Digital",
+      "domain": "reliancedigital.in",
+      "asset": "assets/brands/catalogue-reliancedigital.png",
+      "source": "https://www.google.com/s2/favicons?domain=reliancedigital.in&sz=64",
+      "status": "downloaded"
+    },
+    {
+      "name": "Croma",
+      "domain": "croma.com",
+      "asset": "assets/brands/catalogue-croma.png",
+      "source": "https://www.google.com/s2/favicons?domain=croma.com&sz=64",
+      "status": "downloaded"
+    },
+    {
+      "name": "BigBasket",
+      "domain": "bigbasket.com",
+      "asset": "assets/brands/catalogue-bigbasket.png",
+      "source": "https://www.google.com/s2/favicons?domain=bigbasket.com&sz=64",
+      "status": "downloaded"
+    },
+    {
+      "name": "Blinkit",
+      "domain": "blinkit.com",
+      "asset": "assets/brands/catalogue-blinkit.png",
+      "source": "https://www.google.com/s2/favicons?domain=blinkit.com&sz=64",
+      "status": "downloaded"
+    },
+    {
+      "name": "Zepto",
+      "domain": "zeptonow.com",
+      "asset": "assets/brands/catalogue-zepto.png",
+      "source": "https://www.google.com/s2/favicons?domain=zeptonow.com&sz=64",
+      "status": "downloaded"
+    },
+    {
+      "name": "Swiggy",
+      "domain": "swiggy.com",
+      "asset": "assets/brands/catalogue-swiggy.png",
+      "source": "https://www.google.com/s2/favicons?domain=swiggy.com&sz=64",
+      "status": "downloaded"
+    },
+    {
+      "name": "Zomato",
+      "domain": "zomato.com",
+      "asset": "assets/brands/catalogue-zomato.png",
+      "source": "https://www.google.com/s2/favicons?domain=zomato.com&sz=64",
+      "status": "downloaded"
+    },
+    {
+      "name": "Domino's",
+      "domain": "dominos.co.in",
+      "asset": "assets/brands/catalogue-dominos.png",
+      "source": "https://www.google.com/s2/favicons?domain=dominos.co.in&sz=64",
+      "status": "downloaded"
+    },
+    {
+      "name": "Tata 1mg",
+      "domain": "1mg.com",
+      "asset": "assets/brands/catalogue-tata1mg.png",
+      "source": "https://www.google.com/s2/favicons?domain=1mg.com&sz=64",
+      "status": "downloaded"
+    },
+    {
+      "name": "PharmEasy",
+      "domain": "pharmeasy.in",
+      "asset": "assets/brands/catalogue-pharmeasy.png",
+      "source": "https://www.google.com/s2/favicons?domain=pharmeasy.in&sz=64",
+      "status": "downloaded"
+    },
+    {
+      "name": "Apollo Pharmacy",
+      "domain": "apollopharmacy.in",
+      "asset": "assets/brands/catalogue-apollopharmacy.png",
+      "source": "https://www.google.com/s2/favicons?domain=apollopharmacy.in&sz=64",
+      "status": "downloaded"
+    },
+    {
+      "name": "FirstCry",
+      "domain": "firstcry.com",
+      "asset": "assets/brands/catalogue-firstcry.png",
+      "source": "https://www.google.com/s2/favicons?domain=firstcry.com&sz=64",
+      "status": "downloaded"
+    },
+    {
+      "name": "Lenskart",
+      "domain": "lenskart.com",
+      "asset": "assets/brands/catalogue-lenskart.png",
+      "source": "https://www.google.com/s2/favicons?domain=lenskart.com&sz=64",
+      "status": "downloaded"
+    },
+    {
+      "name": "Decathlon",
+      "domain": "decathlon.in",
+      "asset": "assets/brands/catalogue-decathlon.png",
+      "source": "https://www.google.com/s2/favicons?domain=decathlon.in&sz=64",
+      "status": "downloaded"
+    },
+    {
+      "name": "IKEA",
+      "domain": "ikea.com",
+      "asset": "assets/brands/catalogue-ikea.png",
+      "source": "https://www.google.com/s2/favicons?domain=ikea.com&sz=64",
+      "status": "downloaded"
+    },
+    {
+      "name": "IRCTC",
+      "domain": "irctc.co.in",
+      "asset": null,
+      "source": "https://www.google.com/s2/favicons?domain=irctc.co.in&sz=64",
+      "status": "fallback"
+    },
+    {
+      "name": "MakeMyTrip",
+      "domain": "makemytrip.com",
+      "asset": "assets/brands/catalogue-makemytrip.png",
+      "source": "https://www.google.com/s2/favicons?domain=makemytrip.com&sz=64",
+      "status": "downloaded"
+    },
+    {
+      "name": "Goibibo",
+      "domain": "goibibo.com",
+      "asset": "assets/brands/catalogue-goibibo.png",
+      "source": "https://www.google.com/s2/favicons?domain=goibibo.com&sz=64",
+      "status": "downloaded"
+    },
+    {
+      "name": "Cleartrip",
+      "domain": "cleartrip.com",
+      "asset": "assets/brands/catalogue-cleartrip.png",
+      "source": "https://www.google.com/s2/favicons?domain=cleartrip.com&sz=64",
+      "status": "downloaded"
+    },
+    {
+      "name": "redBus",
+      "domain": "redbus.in",
+      "asset": "assets/brands/catalogue-redbus.png",
+      "source": "https://www.google.com/s2/favicons?domain=redbus.in&sz=64",
+      "status": "downloaded"
+    },
+    {
+      "name": "ixigo",
+      "domain": "ixigo.com",
+      "asset": "assets/brands/catalogue-ixigo.png",
+      "source": "https://www.google.com/s2/favicons?domain=ixigo.com&sz=64",
+      "status": "downloaded"
+    },
+    {
+      "name": "BookMyShow",
+      "domain": "bookmyshow.com",
+      "asset": "assets/brands/catalogue-bookmyshow.png",
+      "source": "https://www.google.com/s2/favicons?domain=bookmyshow.com&sz=64",
+      "status": "downloaded"
+    },
+    {
+      "name": "PVR INOX",
+      "domain": "pvrinox.com",
+      "asset": "assets/brands/catalogue-pvrinox.png",
+      "source": "https://www.google.com/s2/favicons?domain=pvrinox.com&sz=64",
+      "status": "downloaded"
+    },
+    {
+      "name": "Uber",
+      "domain": "uber.com",
+      "asset": "assets/brands/catalogue-uber.png",
+      "source": "https://www.google.com/s2/favicons?domain=uber.com&sz=64",
+      "status": "downloaded"
+    },
+    {
+      "name": "Ola",
+      "domain": "olacabs.com",
+      "asset": null,
+      "source": "https://www.google.com/s2/favicons?domain=olacabs.com&sz=64",
+      "status": "fallback"
+    },
+    {
+      "name": "Rapido",
+      "domain": "rapido.bike",
+      "asset": "assets/brands/catalogue-rapido.png",
+      "source": "https://www.google.com/s2/favicons?domain=rapido.bike&sz=64",
+      "status": "downloaded"
+    },
+    {
+      "name": "Paytm",
+      "domain": "paytm.com",
+      "asset": "assets/brands/catalogue-paytm.png",
+      "source": "https://www.google.com/s2/favicons?domain=paytm.com&sz=64",
+      "status": "downloaded"
+    },
+    {
+      "name": "PhonePe",
+      "domain": "phonepe.com",
+      "asset": "assets/brands/catalogue-phonepe.png",
+      "source": "https://www.google.com/s2/favicons?domain=phonepe.com&sz=64",
+      "status": "downloaded"
+    },
+    {
+      "name": "Google Pay",
+      "domain": "pay.google.com",
+      "asset": "assets/brands/catalogue-googlepay.png",
+      "source": "https://www.google.com/s2/favicons?domain=pay.google.com&sz=64",
+      "status": "downloaded"
+    },
+    {
+      "name": "MobiKwik",
+      "domain": "mobikwik.com",
+      "asset": null,
+      "source": "https://www.google.com/s2/favicons?domain=mobikwik.com&sz=64",
+      "status": "fallback"
+    },
+    {
+      "name": "Airtel",
+      "domain": "airtel.in",
+      "asset": "assets/brands/catalogue-airtel.png",
+      "source": "https://www.google.com/s2/favicons?domain=airtel.in&sz=64",
+      "status": "downloaded"
+    },
+    {
+      "name": "Jio",
+      "domain": "jio.com",
+      "asset": "assets/brands/catalogue-jio.png",
+      "source": "https://www.google.com/s2/favicons?domain=jio.com&sz=64",
+      "status": "downloaded"
+    }
+  ],
+  "resolvedAssets": [
+    {
+      "name": "Amazon India",
+      "asset": "assets/brands/catalogue-amazonindia.png",
+      "generatedInitials": false
+    },
+    {
+      "name": "Flipkart",
+      "asset": "assets/brands/catalogue-flipkart.png",
+      "generatedInitials": false
+    },
+    {
+      "name": "Myntra",
+      "asset": "assets/brands/catalogue-myntra.png",
+      "generatedInitials": false
+    },
+    {
+      "name": "AJIO",
+      "asset": "assets/brands/catalogue-ajio.png",
+      "generatedInitials": false
+    },
+    {
+      "name": "Meesho",
+      "asset": "assets/brands/catalogue-meesho.png",
+      "generatedInitials": false
+    },
+    {
+      "name": "Nykaa",
+      "asset": "assets/brands/catalogue-nykaa.png",
+      "generatedInitials": false
+    },
+    {
+      "name": "Tata CLiQ",
+      "asset": "assets/brands/catalogue-tatacliq.png",
+      "generatedInitials": false
+    },
+    {
+      "name": "JioMart",
+      "asset": "assets/brands/catalogue-jiomart.png",
+      "generatedInitials": false
+    },
+    {
+      "name": "Reliance Digital",
+      "asset": "assets/brands/catalogue-reliancedigital.png",
+      "generatedInitials": false
+    },
+    {
+      "name": "Croma",
+      "asset": "assets/brands/catalogue-croma.png",
+      "generatedInitials": false
+    },
+    {
+      "name": "BigBasket",
+      "asset": "assets/brands/catalogue-bigbasket.png",
+      "generatedInitials": false
+    },
+    {
+      "name": "Blinkit",
+      "asset": "assets/brands/catalogue-blinkit.png",
+      "generatedInitials": false
+    },
+    {
+      "name": "Zepto",
+      "asset": "assets/brands/catalogue-zepto.png",
+      "generatedInitials": false
+    },
+    {
+      "name": "Swiggy",
+      "asset": "assets/brands/catalogue-swiggy.png",
+      "generatedInitials": false
+    },
+    {
+      "name": "Zomato",
+      "asset": "assets/brands/catalogue-zomato.png",
+      "generatedInitials": false
+    },
+    {
+      "name": "Domino's",
+      "asset": "assets/brands/catalogue-dominos.png",
+      "generatedInitials": false
+    },
+    {
+      "name": "Tata 1mg",
+      "asset": "assets/brands/catalogue-tata1mg.png",
+      "generatedInitials": false
+    },
+    {
+      "name": "PharmEasy",
+      "asset": "assets/brands/catalogue-pharmeasy.png",
+      "generatedInitials": false
+    },
+    {
+      "name": "Apollo Pharmacy",
+      "asset": "assets/brands/catalogue-apollopharmacy.png",
+      "generatedInitials": false
+    },
+    {
+      "name": "FirstCry",
+      "asset": "assets/brands/catalogue-firstcry.png",
+      "generatedInitials": false
+    },
+    {
+      "name": "Lenskart",
+      "asset": "assets/brands/catalogue-lenskart.png",
+      "generatedInitials": false
+    },
+    {
+      "name": "Decathlon",
+      "asset": "assets/brands/catalogue-decathlon.png",
+      "generatedInitials": false
+    },
+    {
+      "name": "IKEA",
+      "asset": "assets/brands/catalogue-ikea.png",
+      "generatedInitials": false
+    },
+    {
+      "name": "IRCTC",
+      "asset": "assets/brands/catalogue-irctc.svg",
+      "generatedInitials": true
+    },
+    {
+      "name": "MakeMyTrip",
+      "asset": "assets/brands/catalogue-makemytrip.png",
+      "generatedInitials": false
+    },
+    {
+      "name": "Goibibo",
+      "asset": "assets/brands/catalogue-goibibo.png",
+      "generatedInitials": false
+    },
+    {
+      "name": "Cleartrip",
+      "asset": "assets/brands/catalogue-cleartrip.png",
+      "generatedInitials": false
+    },
+    {
+      "name": "redBus",
+      "asset": "assets/brands/catalogue-redbus.png",
+      "generatedInitials": false
+    },
+    {
+      "name": "ixigo",
+      "asset": "assets/brands/catalogue-ixigo.png",
+      "generatedInitials": false
+    },
+    {
+      "name": "BookMyShow",
+      "asset": "assets/brands/catalogue-bookmyshow.png",
+      "generatedInitials": false
+    },
+    {
+      "name": "PVR INOX",
+      "asset": "assets/brands/catalogue-pvrinox.png",
+      "generatedInitials": false
+    },
+    {
+      "name": "Uber",
+      "asset": "assets/brands/catalogue-uber.png",
+      "generatedInitials": false
+    },
+    {
+      "name": "Ola",
+      "asset": "assets/brands/catalogue-ola.svg",
+      "generatedInitials": true
+    },
+    {
+      "name": "Rapido",
+      "asset": "assets/brands/catalogue-rapido.png",
+      "generatedInitials": false
+    },
+    {
+      "name": "Paytm",
+      "asset": "assets/brands/catalogue-paytm.png",
+      "generatedInitials": false
+    },
+    {
+      "name": "PhonePe",
+      "asset": "assets/brands/catalogue-phonepe.png",
+      "generatedInitials": false
+    },
+    {
+      "name": "Google Pay",
+      "asset": "assets/brands/catalogue-googlepay.png",
+      "generatedInitials": false
+    },
+    {
+      "name": "MobiKwik",
+      "asset": "assets/brands/catalogue-mobikwik.svg",
+      "generatedInitials": true
+    },
+    {
+      "name": "Airtel",
+      "asset": "assets/brands/catalogue-airtel.png",
+      "generatedInitials": false
+    },
+    {
+      "name": "Jio",
+      "asset": "assets/brands/catalogue-jio.png",
+      "generatedInitials": false
+    }
+  ]
+}

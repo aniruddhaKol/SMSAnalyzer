@@ -6,14 +6,16 @@ function destinationToken(body){const tail=body.match(/\bto\s+(?!be\b)(?:[^\r\n]
 function confirmedOwnAccount(m,config){return m.sourceKind==='account'&&config.accounts.find(a=>a.bank===m.source.key&&a.last4===m.sourceAccount);}
 function classifyOwnedTransfers(records,config){
  const accounts=config.accounts||[],aliases=(config.ownAliases||[]).map(trainingKey),active=records.filter(m=>!m.duplicate),eligible=m=>m.trainingAction!=='others'&&!['payment','income','salary','refund','ignore'].includes(m.trainingTreatment)&&!m.loan&&!m.isEmiRepayment&&!/\b(?:penalty|charges?|fee|refund|reversal)\b/i.test(m.body)&&m.transferKind!=='card-settlement';
+ const bySourceReference=new Map(),creditsByReference=new Map();
+ for(const m of records){if(!m.reference)continue;const key=m.source.key+'|'+m.reference,list=bySourceReference.get(key)||[];list.push(m);bySourceReference.set(key,list);if(!m.duplicate&&m.credit>0){const credits=creditsByReference.get(m.reference)||[];credits.push(m);creditsByReference.set(m.reference,credits);}}
  const own=(m,proof)=>{trainingTreatment(m,'own');m.ownMatch=proof;};
  const compatible=(a,b)=>Math.abs((a.debit||a.credit||a.confirmationAmount)-(b.debit||b.credit||b.confirmationAmount))<.005&&Math.abs(a.date-b.date)<=2*86400000;
  for(const debit of active.filter(m=>m.debit>0&&eligible(m)&&confirmedOwnAccount(m,config))){
   // Duplicate bank/YONO alerts may carry a fuller destination than the kept alert.
-  const related=records.filter(m=>m!==debit&&m.source.key===debit.source.key&&m.reference&&m.reference===debit.reference&&compatible(m,debit));
+  const related=(bySourceReference.get(debit.source.key+'|'+debit.reference)||[]).filter(m=>m!==debit&&compatible(m,debit));
   const targets=[debit,...related].map(m=>m.destinationAccount).filter(Boolean),target=accounts.filter(a=>targets.includes(a.last4)&&!(a.bank===debit.source.key&&a.last4===debit.sourceAccount));
   const alias=debit.payee&&aliases.includes(trainingKey(debit.payee.label));
-  const credits=active.filter(c=>c!==debit&&c.credit>0&&eligible(c)&&confirmedOwnAccount(c,config)&&!(c.source.key===debit.source.key&&c.sourceAccount===debit.sourceAccount)&&compatible(c,debit)&&(!debit.destinationAccount||debit.destinationAccount===c.sourceAccount)&&c.reference&&c.reference===debit.reference);
+  const credits=(creditsByReference.get(debit.reference)||[]).filter(c=>c!==debit&&eligible(c)&&confirmedOwnAccount(c,config)&&!(c.source.key===debit.source.key&&c.sourceAccount===debit.sourceAccount)&&compatible(c,debit)&&(!debit.destinationAccount||debit.destinationAccount===c.sourceAccount));
   if(target.length===1||alias||credits.length===1){
    const proof=alias?'Confirmed own recipient alias':target.length===1?'Confirmed source and destination accounts':'Confirmed owned accounts and transaction reference';own(debit,proof);related.filter(eligible).forEach(m=>own(m,proof));credits.forEach(c=>own(c,proof));
    // PPF receipts often omit a reference. Require explicit owned PPF route and a unique exact-value receipt.
@@ -25,7 +27,7 @@ function classifyOwnedTransfers(records,config){
   }
  }
  // Reference-free same-bank receipts need both registered accounts and an explicitly saved owner name.
- const names=(config.ownNames||[]).map(trainingKey),named=m=>names.some(name=>name.length>=8&&trainingKey(m.body).includes(name));
+ const names=(config.ownNames||[]).map(trainingKey),nameCache=new WeakMap(),named=m=>{if(!nameCache.has(m)){const body=trainingKey(m.body);nameCache.set(m,names.some(name=>name.length>=8&&body.includes(name)));}return nameCache.get(m);};
  for(const debit of active.filter(m=>m.debit>0&&eligible(m)&&confirmedOwnAccount(m,config)&&named(m))){
   const credits=active.filter(c=>c.credit>0&&eligible(c)&&confirmedOwnAccount(c,config)&&c.source.key===debit.source.key&&c.sourceAccount!==debit.sourceAccount&&compatible(c,debit)&&Math.abs(c.date-debit.date)<=60000&&named(c)&&!(c.reference&&debit.reference&&c.reference!==debit.reference));
   const reverse=credits.length===1?active.filter(d=>d.debit>0&&eligible(d)&&confirmedOwnAccount(d,config)&&d.source.key===debit.source.key&&named(d)&&compatible(d,credits[0])&&Math.abs(d.date-credits[0].date)<=60000):[];

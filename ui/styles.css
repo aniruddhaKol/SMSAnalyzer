@@ -231,10 +231,10 @@ svg .currency-sign{font-size:1.25em}
 #app{--control-overlay:#342117b8;--control-border:#b59473}
 #app[data-theme=stone]{--control-overlay:#29302bb8;--control-border:#a8afa3}
 #app[data-theme=brick]{--control-overlay:#4b271db8;--control-border:#c89478}
-.trend-tabs,.payee-toggle,nav{background:linear-gradient(var(--control-overlay),var(--control-overlay)),var(--texture) center/cover;border-color:var(--control-border);color:#fff8ef}
-.trend-tabs button,.payee-toggle button,nav button{color:#fff8ef;background:transparent}
-.trend-tabs button[aria-pressed=true],.payee-toggle button[aria-pressed=true],nav button.active{background:linear-gradient(#ffffff20,#00000010),var(--chrome);color:#fff8ef;box-shadow:inset 0 1px #ffffff66,inset 0 0 0 1px var(--control-border),0 1px 2px #0004;border-radius:4px}
-.trend-tabs button:active,.payee-toggle button:active,nav button:active{box-shadow:inset 0 2px 3px #0006;filter:brightness(.94)}
+.trend-tabs,.training-tabs,.payee-toggle,nav{background:linear-gradient(var(--control-overlay),var(--control-overlay)),var(--texture) center/cover;border-color:var(--control-border);color:#fff8ef}
+.trend-tabs button,.training-tabs button,.payee-toggle button,nav button{color:#fff8ef;background:transparent}
+.trend-tabs button[aria-pressed=true],.training-tabs button[aria-pressed=true],.payee-toggle button[aria-pressed=true],nav button.active{background:linear-gradient(#ffffff20,#00000010),var(--chrome);color:#fff8ef;box-shadow:inset 0 1px #ffffff66,inset 0 0 0 1px var(--control-border),0 1px 2px #0004;border-radius:4px}
+.trend-tabs button:active,.training-tabs button:active,.payee-toggle button:active,nav button:active{box-shadow:inset 0 2px 3px #0006;filter:brightness(.94)}
 
 /* v0.1.36: previous-period details share the disclaimer panel treatment. */
 .spending-summary .previous-disclaimer{background:#f3efe6;margin-top:7px;padding:9px;gap:7px;border-color:#bcb2a3}
@@ -245,9 +245,9 @@ svg .currency-sign{font-size:1.25em}
 .sms-access-action:active{transform:none;background:transparent;filter:none}
 .sms-access-action .access-edit{width:30px;height:30px;padding:0;display:grid;place-items:center}
 .access-edit>.ic{width:17px;height:17px}
-.training-entry{font-weight:600}.training-tabs{display:flex;gap:2px;background:var(--chrome);padding:3px;border-radius:5px;position:sticky;top:0;z-index:2;margin-bottom:2px}
-.training-tabs>button{flex:1;min-width:0;min-height:38px;padding:6px 2px;font-size:9px;background:transparent;color:#fff8ef;border-radius:4px}
-.training-tabs>button[aria-pressed=true]{background:#ffffff25;box-shadow:inset 0 0 0 1px #fff7}
+.training-entry{font-weight:600}.training-tabs{display:flex;gap:4px;padding:4px;border-radius:5px;position:static;margin-bottom:2px}
+.training-tabs>button{flex:1;min-width:0;min-height:38px;padding:6px 2px;font-size:9px;background:transparent;color:#fff8ef;border-radius:5px}
+
 [data-screen=training] main>.transfer-disclaimer{background:#faf7f1;margin:0 0 2px}
 .training-form{display:grid;gap:10px;padding:2px 3px}.training-form>label{display:grid;gap:5px;font-size:11px}
 .training-form input:not([type=checkbox]),.training-form textarea,.training-form select,.training-filter input{width:100%;max-width:none;min-width:0;padding:9px;border:1px solid #b8a58c;border-radius:4px;background:#fffdf8;color:#30251f}
@@ -382,7 +382,7 @@ dialog.account-confirm-dialog[open]{height:auto;max-width:350px;padding:18px}
 .themes{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px}
 .theme-preview{height:72px;background-size:cover;background-position:center}
 #app[data-theme=bookshelves] .settings{background:#dcd0bf}
-#app[data-theme=bookshelves] .refresh-indicator{background:var(--chrome);color:#fff8ef;border-color:var(--control-border)}
+
 #app[data-theme=bookshelves]~#toast{background:#503321;border:1px solid #be9467}
 
 /* TaskVilla author panel: selected-theme texture and compact equal contact tiles. */
@@ -399,3 +399,93 @@ dialog.account-confirm-dialog[open]{height:auto;max-width:350px;padding:18px}
 .author .contacts a:hover{border-color:#c5bba9;background:#5c554c}
 .author .contacts a:focus-visible{outline:2px solid #d9edcc;outline-offset:-3px}
 .author .contacts a:active{transform:translateY(2px);filter:brightness(.96)}
+
+/* Compact learning management and familiar picker panels. */
+.management-row .account-meta{font-size:10px}.management-row .account-identity strong{font-size:11px}.management-row .account-meta{white-space:normal}.training-tabs>button{font-size:9px}
+.category-swatch{display:inline-block;width:26px;height:26px;border:1px solid #0003;border-radius:5px;vertical-align:middle;flex-shrink:0}
+.category-emoji{font-family:'Noto Color Emoji','Segoe UI Emoji',sans-serif;font-size:24px;line-height:1.3}
+.category-appearance{display:flex;align-items:center;gap:12px;width:100%;text-align:left;padding:10px 12px;min-height:48px;background:#fffdf8;border:1px solid #b8a58c;border-radius:5px;margin:8px 0}
+.category-appearance small{display:block;margin-top:3px}
+.category-picker-overlay{position:absolute;inset:0;z-index:15;display:flex;align-items:center;justify-content:center;padding:6px;background:#0005;border-radius:5px}
+.category-picker{display:flex;flex-direction:column;max-height:100%;width:100%;min-height:0;background:#fff;color:#30251f;box-shadow:0 4px 18px #0005;border-radius:5px;overflow:hidden}
+.picker-heading{display:flex;justify-content:space-between;align-items:center;padding:8px 10px;background:#f3f3f3;flex-shrink:0}.picker-heading .icon{margin:0}
+.emoji-tabs{display:flex;flex-shrink:0;background:#f3f3f3;border-bottom:1px solid #ddd;padding:0 5px}.emoji-tabs button{flex:1;min-width:0;min-height:42px;background:transparent;font-size:23px;color:#555;border-bottom:3px solid transparent}.emoji-tabs button[aria-selected=true]{border-color:#00b6a2}
+#category-emoji-search{margin:10px;width:calc(100% - 20px);padding:9px 12px;border:1px solid #ddd;border-radius:24px;min-height:40px;background:#fff;flex-shrink:0}
+.category-emoji-scroll{overflow:auto;min-height:90px;max-height:42dvh;padding:0 8px 8px;flex:1}.category-emoji-scroll h3{font-size:15px;font-weight:500;margin:2px 4px 8px}
+.category-emoji-grid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:0}.category-emoji-grid button{font-family:'Noto Color Emoji','Segoe UI Emoji',sans-serif;font-size:25px;min-width:0;min-height:42px;background:#fff;border:0;padding:4px 0;border-radius:0}.category-emoji-grid button:hover{background:#f2f2f2}
+.emoji-picker-note{background:#f5f5f5;border-top:1px solid #ddd;text-align:center;padding:18px 10px;font-size:11px;flex-shrink:0}
+.category-colour-scroll{overflow:auto;min-height:0;padding:10px}.category-colour-grid{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:6px}.category-colour-grid button{aspect-ratio:1;min-height:36px;border:1px solid #0003;border-radius:5px}
+.custom-colour{display:flex;align-items:center;gap:8px;padding:12px 0}.custom-colour label{flex:1;font-size:10px}.custom-colour input{min-width:0;width:90px;padding:8px;border:1px solid #b8a58c;background:#fffdf8;border-radius:5px}
+.colour-slider{display:flex;align-items:center;gap:8px;font-size:10px;margin:9px 0}.colour-slider input{flex:1;min-width:0;accent-color:var(--chrome)}.colour-slider output{width:26px;text-align:right}.category-picker>.dialog-actions{margin:0;padding:0 10px 10px}
+.category-picker :is(button,input):focus-visible{outline:2px solid #23825b;outline-offset:-3px}
+#app .refresh-indicator{background:#faf7f1;background-image:none;color:#503526;border-color:#b7a28e}
+#toast,#app[data-theme]~#toast{background:#30251f;background-image:none;color:#fff8ef;border:0}
+
+.emoji-tabs button{display:grid;place-items:center;border-radius:0}.emoji-tabs svg{width:22px;height:22px}
+
+/* Refresh feedback is explicitly neutral in every theme, including while dragging. */
+#app[data-theme] .refresh-indicator{background:#fff;background-image:none;color:#30251f;border-color:#c8c2b9}
+.management-toolbar{display:flex;justify-content:flex-end;align-items:center;gap:8px;margin-bottom:8px}
+.management-toolbar>.primary,.management-toolbar>.secondary{width:auto;flex:0 0 auto;min-height:42px;padding:10px 12px;margin:0}
+.default-category-label{font-size:11px;margin:16px 0 8px}.default-category-name{background:#eee9e1!important;color:#594d42}
+
+/* Compact category editing, list actions and classification cues. */
+.category-editor-layout{display:flex;flex-direction:column;min-height:0;max-height:calc(var(--dialog-height,100dvh) - 160px)}
+.category-editor-scroll{overflow:auto;min-height:0;padding:3px}.category-editor-actions{flex-shrink:0;margin-bottom:0}.category-editor-actions button{margin-bottom:2px}
+.category-appearance>span:nth-child(2){flex:1}.category-appearance>.ic{margin-left:auto;width:18px;height:18px}
+.category-accent{border-left:1px solid var(--category-accent)!important}
+.payee-category{gap:5px}.payee-category>.ic{width:16px;height:16px}.category-button-emoji{font-family:'Noto Color Emoji','Segoe UI Emoji',sans-serif;font-size:17px;line-height:1.3}
+header h1{display:flex;align-items:center;gap:8px}header h1>.ic{width:24px;height:24px}header h1>.category-emoji{font-size:25px}
+.category-review-edit{width:30px;height:30px;padding:0;margin:0;flex:none}.category-review-edit>.ic{width:17px;height:17px}
+
+.dialog-actions.single-action>.category-review-edit{flex:0 0 30px;min-width:30px;max-width:30px;width:30px;min-height:30px;height:30px}#app[data-screen=categoryMessages] header h1:after{content:none}
+
+.picker-colour .category-picker{height:auto;max-height:100%}.picker-colour .category-colour-scroll{flex:0 1 auto;padding:14px 10px 0}.picker-colour .category-colour-grid{gap:8px}.picker-colour .custom-colour{padding:18px 0}.picker-colour .colour-slider{margin:16px 0}
+
+dialog.category-picker-host[open]{height:calc(var(--dialog-height,var(--app-height,100dvh)) - 24px)}
+.picker-colour .category-colour-grid{min-height:min(280px,35dvh);grid-auto-rows:minmax(42px,1fr)}.picker-colour .category-colour-grid button{aspect-ratio:auto}
+
+/* Channel controls retain channel colours; picker height follows its content. */
+#picker-channel-0{accent-color:#d32f2f}#picker-channel-1{accent-color:#2e7d32}#picker-channel-2{accent-color:#1565c0}
+.picker-colour #picker-error:empty{display:none}.picker-colour .colour-slider:last-of-type{margin-bottom:0}.picker-colour .category-picker>.dialog-actions{padding-top:10px}
+.default-category-label{display:flex;align-items:center;gap:10px}.default-category-label:after{content:'';flex:1;height:1px;background:#bcb2a3}
+.category-accent{border-left-width:2px!important}
+[data-learning=next]>.ic{width:18px;height:18px}.learning-review [data-learning=next]{gap:5px;padding-left:7px;padding-right:7px}
+/* Shared pressed bevel uses each button's existing colour family. */
+button,a,summary,[role=button],[role=tab]{--press-dark:color-mix(in srgb,currentColor 65%,#000 35%);--press-light:color-mix(in srgb,currentColor 15%,#fff 85%)}
+.primary{--press-dark:#3e5730;--press-light:#dbeccd}.secondary,.icon{--press-dark:#535b50;--press-light:#e4e8e1}.bevel{--press-dark:#786354;--press-light:#e8ddd1}
+.danger,.account-remove{--press-dark:#7e3f37;--press-light:#f3d4d0}
+nav button,.training-tabs button,.trend-tabs button,.payee-toggle button{--press-dark:color-mix(in srgb,var(--chrome,#654633) 65%,#000 35%);--press-light:var(--control-border,#b59473)}
+button:enabled:active,.contacts>a:active,summary:active{transform:translateY(2px)!important;filter:brightness(.96)!important;box-shadow:inset 0 2px 4px var(--press-dark),inset 0 -1px 1px var(--press-light)!important;border-color:var(--press-dark) var(--press-light) var(--press-light) var(--press-dark)!important}
+
+/* WebView interaction defaults must not cover the app's own pressed bevel. */
+*{-webkit-tap-highlight-color:transparent}
+button,button *,a,a *,summary,summary *,[role=button],[role=button] *,[role=tab],[role=tab] *,label{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
+input:not([type=checkbox]):not([type=radio]):not([type=range]),textarea,[contenteditable=true],[contenteditable=""]{-webkit-user-select:text;user-select:text;-webkit-touch-callout:default}
+
+button:enabled.ui-pressed,a.ui-pressed,summary.ui-pressed,[role=button].ui-pressed,[role=tab].ui-pressed{transform:translateY(2px)!important;filter:brightness(.96)!important;box-shadow:inset 0 2px 4px var(--press-dark),inset 0 -1px 1px var(--press-light)!important;border-color:var(--press-dark) var(--press-light) var(--press-light) var(--press-dark)!important}
+
+/* Category SMS tag distribution; preserve the existing count denominator. */
+.category-tag-ring{gap:12px}.category-tag-ring .ring{width:110px;height:110px}.category-tag-ring .ring-center{width:76px;height:76px}.category-tag-ring .ring-center strong{font-size:18px}.category-tag-ring .legend{min-width:0}.category-tag-ring .legend>div{font-size:10px;line-height:1.5;margin:8px 0}.category-tag-ring .legend>div>span:nth-child(2){flex:1;min-width:0;overflow-wrap:anywhere}.category-tag-ring .legend b{white-space:nowrap}.category-tag-ring .ring-center strong{max-width:72px;font-size:clamp(14px,4vw,18px)}
+@media(max-width:359px){.category-tag-ring{flex-direction:column}.category-tag-ring .legend{width:100%}}
+
+/* Categories: chart above compact, wrapping series instead of a vertical legend. */
+.category-tag-ring{flex-direction:column;gap:14px}
+.category-tag-ring .ring{width:140px;height:140px}
+.category-tag-ring .ring-center{width:98px;height:98px}
+.category-tag-ring .ring-center strong{max-width:94px;font-size:20px}
+.category-tag-ring .legend{display:flex;flex-wrap:wrap;justify-content:center;gap:8px 12px;width:100%}
+.category-tag-ring .legend>div{display:inline-flex;flex:0 1 auto;gap:5px;margin:0;font-size:10px;line-height:1.6;max-width:100%}
+.category-tag-ring .legend>div>span:nth-child(2){flex:0 1 auto}
+.category-tag-ring .legend b{margin-left:0}
+
+.alert-sms-row{width:100%;text-align:left;background:transparent;color:inherit;border-radius:4px}.alert-sms-row:nth-child(even){background:#e8e2d744}.alert-empty{display:flex;align-items:center;justify-content:center;gap:8px;padding:16px 4px}.alert-empty>span{color:#786859}.alert-empty p{margin:0}
+
+/* Alerts reuse Home notice surfaces: red status, green guidance, amber footer. */
+[data-screen=alerts] .alert-section-note{background:#fff0d9;border-left:3px solid #d29342;color:#73451f;font-size:11px}
+[data-screen=alerts] .alert-footer{background:#e5ecd9;border-left:3px solid #65844b;color:#3e4932;margin-top:10px}
+[data-screen=alerts] .fraud-card{background:#f7e4df;border-left:3px solid #b34d3d;color:#8b3529}
+[data-screen=alerts] .fraud-card .tile-icon{background:#f1d0c8;color:#8b3529}
+.learning-review .learn-review-controls{margin-left:auto;justify-content:flex-end}
+
+.category-list-guidance .transfer-disclaimer{margin-top:0}

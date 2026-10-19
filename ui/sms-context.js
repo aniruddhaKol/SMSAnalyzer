@@ -14,5 +14,10 @@ async function copySmsContent(key){const m=messages.find(m=>recordKey(m)===key)|
 document.addEventListener('pointerdown',e=>{if(e.button!==0||e.target.closest('button,input,select,textarea,a,label'))return;const node=e.target.closest('[data-sms-key]');if(!node)return;cancelSmsPress();const press={x:e.clientX,y:e.clientY,key:node.dataset.smsKey,timer:null};press.timer=setTimeout(()=>{if(smsPress!==press)return;smsCopySuppressUntil=Date.now()+700;copySmsContent(press.key);smsPress=null;},550);smsPress=press;},{passive:true});
 document.addEventListener('pointermove',e=>{if(smsPress&&Math.hypot(e.clientX-smsPress.x,e.clientY-smsPress.y)>10)cancelSmsPress();},{passive:true});
 for(const event of ['pointerup','pointercancel','scroll'])document.addEventListener(event,cancelSmsPress,{capture:true,passive:true});
-document.addEventListener('contextmenu',e=>{if(e.target.closest('[data-sms-key]'))e.preventDefault();});
+// Keep native editing menus on fields, but not browser text/link menus on app controls.
+function interactionTarget(e){return e.target instanceof Element?e.target:e.target?.parentElement;}
+function editableInteraction(node){return !!node?.closest('input,textarea,[contenteditable=true],[contenteditable=""]');}
+const appControlSelector='button,a,summary,[role=button],[role=tab],label';
+document.addEventListener('contextmenu',e=>{const node=interactionTarget(e);if(!editableInteraction(node)&&node?.closest('[data-sms-key],'+appControlSelector))e.preventDefault();});
+document.addEventListener('selectstart',e=>{const node=interactionTarget(e);if(!editableInteraction(node)&&node?.closest(appControlSelector))e.preventDefault();});
 document.addEventListener('click',e=>{if(Date.now()<smsCopySuppressUntil&&e.target.closest('[data-sms-key]')){e.preventDefault();e.stopImmediatePropagation();}},true);

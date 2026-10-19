@@ -33,3 +33,5 @@ node_modules/
 
 .DS_Store
 Thumbs.db
+
+!/docs/release-v0.1.85.md

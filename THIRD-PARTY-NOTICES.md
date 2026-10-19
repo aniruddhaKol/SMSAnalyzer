@@ -9,6 +9,10 @@ The project license applies only to original material that Aniruddha DuttaChowdh
 - The offline bank-name catalogue includes Razorpay IFSC data under its [MIT licence](ui/assets/banks/IFSC-LICENSE.txt), with supplementary names from the RBI NEFT directory. Preserve [bank catalogue and artwork provenance](ui/assets/banks/SOURCES.json) and [artwork notices](ui/assets/banks/ATTRIBUTION.txt). App-drawn neutral bank symbols are distinguished from retrieved official logos.
 - TaskVilla-style themes and the ADChowdhury signature are reused at the author's direction, as recorded in the existing README.
 
+- The offline emoji catalogue reuses TaskVilla's Unicode Emoji 18.0 data. © 2026 Unicode, Inc. Preserve [the Unicode licence](ui/assets/Unicode-LICENSE.txt). Glyph appearance is provided by the device emoji font.
+
+- The user-supplied India merchant catalogue adds 40 public merchant references. Suggested sender aliases are not verified TRAI registrations. Website favicons are bundled for offline identification; see [catalogue sources and fallback markings](ui/assets/brands/catalogue-sources.json). IRCTC, Ola and MobiKwik currently use neutral generated initials, not official logos.
+
 ## Unresolved permissions
 
 The brand attribution records sources and owners; it does not establish a general redistribution license for each mark. Confirm the applicable permissions before further redistribution. The recorded permission to reuse TaskVilla styling does not independently establish rights in underlying third-party textures or reference artwork. Those assets and marks are not relicensed by the project license.
