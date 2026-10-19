@@ -5,7 +5,7 @@ const path=require('node:path'),{pathToFileURL}=require('node:url');
  const browser=await chromium.launch({channel:'msedge',headless:true}),page=await browser.newPage({viewport:{width:393,height:852}});
  const errors=[];page.on('pageerror',e=>errors.push(e.message));
  await page.addInitScript(()=>localStorage.setItem('smsanalyzer.settings',JSON.stringify({started:true,range:30,durationVersion:1})));
- await page.goto(pathToFileURL(path.resolve(__dirname,'../ui/index.html')).href);
+ await require('./ui-server.cjs').openUi(page);
  await page.evaluate(()=>{
   const now=Date.now(),raw=[{id:1,sender:'AD-KOTAKB-S',date:now-10000,body:'Sent INR 500 from Kotak Bank account XX5555 to Asha Demo Ref 123456789012.'}];
   training=defaultTraining();training.categories=[{id:'sample-grocery',name:'Grocery',color:'#568363'}];
@@ -13,8 +13,8 @@ const path=require('node:path'),{pathToFileURL}=require('node:url');
   nativeMessages(raw);payeeView='latest';render();
  });
  assert.equal(await page.locator('.latest-payment .payee-category').innerText(),'Grocery');
- await page.locator('.latest-payment .payee-category').click();await page.waitForFunction(()=>!window.buttonFeedbackPending);await page.locator('#payee-category-select').selectOption('0');
- await page.getByRole('button',{name:'Preview',exact:true}).click();await page.waitForFunction(()=>!window.buttonFeedbackPending);await page.getByRole('button',{name:'Apply',exact:true}).click();await page.waitForFunction(()=>!window.buttonFeedbackPending);
+ await page.locator('.latest-payment .payee-category').click();await page.waitForFunction(()=>!window.buttonFeedbackPending&&!window.trainingBusy);await page.locator('#payee-category-select').selectOption('0');
+ await page.getByRole('button',{name:'Preview',exact:true}).click();await page.waitForFunction(()=>!window.buttonFeedbackPending&&!window.trainingBusy);await page.getByRole('button',{name:'Apply',exact:true}).click();await page.waitForFunction(()=>!window.buttonFeedbackPending&&!window.trainingBusy);
  assert.equal(await page.locator('.latest-payment .payee-category').innerText(),'Food & Dining');
  assert.deepEqual(await page.evaluate(()=>({custom:messages[0].customCategoryId||null,spending:spendNames[messages[0].spendGroup],food:totalSpend(categoryRecords(filtered(),15)),ring:spendBreakdown(filtered())[0]})),{custom:null,spending:'Food & Dining',food:500,ring:500});
  await page.evaluate(()=>{payeeView='top';render()});assert.equal(await page.locator('.merchant-meta .payee-category').innerText(),'Food & Dining');
@@ -23,7 +23,7 @@ const path=require('node:path'),{pathToFileURL}=require('node:url');
  assert.deepEqual(await page.evaluate(()=>messages.map(learningCategoryLabel)),['Food & Dining','Food & Dining']);
  // Undo restores the older custom category rather than discarding the old rule.
  await page.evaluate(()=>{training.rules.pop();rebuildTraining();render()});assert.deepEqual(await page.evaluate(()=>messages.map(learningCategoryLabel)),['Grocery','Grocery']);
- await page.evaluate(()=>{go('training');learningOpen(recordKey(messages[0]),'identified');learning.choice='category';learning.category='0';learning.remember=false;learningSaveSingle();});
+ await page.evaluate(async()=>{go('training');learningOpen(recordKey(messages[0]),'identified');learning.choice='category';learning.category='0';learning.remember=false;await learningSaveSingle();});
  assert.deepEqual(await page.evaluate(()=>messages.map(learningCategoryLabel)),['Food & Dining','Grocery']);
  assert.equal(await page.evaluate(()=>messages[0].customCategoryId||null),null);
  // Topic replacement, another custom category, and invalid values.

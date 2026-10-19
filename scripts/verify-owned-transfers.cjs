@@ -4,7 +4,7 @@ const {chromium}=require('playwright'),assert=require('node:assert/strict'),path
  const browser=await chromium.launch({channel:'msedge',headless:true}),page=await browser.newPage({viewport:{width:393,height:852}}),errors=[];
  page.on('pageerror',e=>errors.push(e.message));
  await page.addInitScript(()=>localStorage.setItem('smsanalyzer.settings',JSON.stringify({started:true,range:30,durationVersion:1})));
- await page.goto(pathToFileURL(path.resolve(__dirname,'../ui/index.html')).href);
+ await require('./ui-server.cjs').openUi(page);
  const result=await page.evaluate(()=>{
   training=defaultTraining();training.accounts=[{id:'a',bank:'HDFC BANK',last4:'1111'},{id:'b',bank:'KOTAK BANK',last4:'2222'},{id:'c',bank:'SBI',last4:'3333'},{id:'p',bank:'SBI',last4:'4444',type:'ppf'}];training.ownAliases=['own.demo@upi'];training.ownNames=['DEMO OWNER'];
   const now=Date.now(),raw=[],add=(id,sender,body,offset=0)=>raw.push({id,sender,body,date:now+offset});
@@ -34,11 +34,11 @@ const {chromium}=require('playwright'),assert=require('node:assert/strict'),path
  await page.evaluate(()=>learningOpen(recordKey(messages.find(m=>m.id===14)),'identified'));
  assert.equal(await page.locator('[name=learn-choice]').count(),0);assert.equal(await page.locator('#learn-category option[value="action:own"]').count(),1);
  await page.locator('#learn-category').selectOption('action:own');await page.locator('#learn-remember').uncheck();
- await page.getByRole('button',{name:'Save & Next',exact:true}).click();await page.waitForFunction(()=>!window.buttonFeedbackPending);
+ await page.getByRole('button',{name:'Save & Next',exact:true}).click();await page.waitForFunction(()=>!window.buttonFeedbackPending&&!window.trainingBusy);
  assert.deepEqual(await page.evaluate(()=>({self:isSelfTransfer(messages.find(m=>m.id===14)),rules:training.rules.length,corrections:training.corrections.length})),{self:true,rules:0,corrections:1});
  await page.evaluate(()=>{learning.context=null;learning.reviewReturn=null;learning.step='home';render()});
  assert.equal(await page.locator('[data-learning=categoryRecords]').count(),0);
- await page.locator('[data-learning=identified]').click();await page.waitForFunction(()=>!window.buttonFeedbackPending);await page.locator('[data-learning=openRecord]').first().click();await page.waitForFunction(()=>!window.buttonFeedbackPending);
+ await page.locator('[data-learning=identified]').click();await page.waitForFunction(()=>!window.buttonFeedbackPending&&!window.trainingBusy);await page.locator('[data-learning=openRecord]').first().click();await page.waitForFunction(()=>!window.buttonFeedbackPending&&!window.trainingBusy);
  await page.evaluate(()=>learningBack());assert.equal(await page.evaluate(()=>learning.step),'records');
  await page.evaluate(()=>{learningOpen(recordKey(messages.find(m=>m.id===14)),'identified');training.categories.push({id:'legal-demo',name:'Legal',color:'#66899c'});render()});
  const categories=await page.locator('#learn-category option').allTextContents();assert.deepEqual(categories,[...categories].sort((a,b)=>a.localeCompare(b,'en',{sensitivity:'base'})));assert.equal(categories.some(x=>/Choose category|Automatic category/i.test(x)),false);

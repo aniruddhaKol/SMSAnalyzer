@@ -32,9 +32,11 @@ public class MainActivity extends Activity {
   WebView.setWebContentsDebuggingEnabled(true);
   web.addJavascriptInterface(new Bridge(),"Android");
   web.setWebViewClient(new WebViewClient(){
+   @Override public WebResourceResponse shouldInterceptRequest(WebView view,WebResourceRequest request){Uri uri=request.getUrl();if(!"https".equals(uri.getScheme())||!"appassets.androidplatform.net".equals(uri.getHost()))return null;String path=uri.getPath();if(path==null||!path.startsWith("/assets/ui/")||path.contains(".."))return new WebResourceResponse("text/plain","UTF-8",new java.io.ByteArrayInputStream(new byte[0]));try{String asset=path.substring("/assets/".length()),mime=asset.endsWith(".js")?"text/javascript":asset.endsWith(".css")?"text/css":asset.endsWith(".html")?"text/html":asset.endsWith(".svg")?"image/svg+xml":asset.endsWith(".gif")?"image/gif":asset.endsWith(".png")?"image/png":asset.endsWith(".ttf")?"font/ttf":asset.endsWith(".json")?"application/json":"application/octet-stream";return new WebResourceResponse(mime,"UTF-8",getAssets().open(asset));}catch(java.io.IOException e){return new WebResourceResponse("text/plain","UTF-8",new java.io.ByteArrayInputStream(new byte[0]));}}
+
    @Override public void onPageFinished(WebView v,String url){syncViewport();}
    @Override public boolean shouldOverrideUrlLoading(WebView v, WebResourceRequest r){
-    Uri u=r.getUrl(); String s=u.getScheme();
+    Uri u=r.getUrl(); String s=u.getScheme();if("appassets.androidplatform.net".equals(u.getHost()))return false;
     if ("https".equals(s)||"mailto".equals(s)||"tel".equals(s)) {
      try { startActivity(new Intent(Intent.ACTION_VIEW,u)); } catch(Exception e) { notifyError("No app available to open this link."); }
     }
@@ -42,7 +44,7 @@ public class MainActivity extends Activity {
    }
   });
   web.addOnLayoutChangeListener((v,l,t,r,bottom,oldL,oldT,oldR,oldB)->syncViewport());
-  web.loadUrl("file:///android_asset/ui/index.html");
+  web.loadUrl("https://appassets.androidplatform.net/assets/ui/index.html");
  }
  private void syncViewport(){
   if(web==null||web.getHeight()<=0)return;
@@ -79,6 +81,7 @@ public class MainActivity extends Activity {
 
   @JavascriptInterface public boolean copySms(String text){if(text==null)return false;try{android.content.ClipboardManager clipboard=(android.content.ClipboardManager)getSystemService(CLIPBOARD_SERVICE);clipboard.setPrimaryClip(android.content.ClipData.newPlainText("SMS",text));return true;}catch(Exception e){return false;}}
   @JavascriptInterface public String getTraining(){return getSharedPreferences("settings",0).getString("training","");}
+  @JavascriptInterface public void saveTrainingAsync(int id,String json){new Thread(()->{boolean saved=false;if(json!=null&&json.length()<=524288){try{new JSONObject(json);saved=getSharedPreferences("settings",0).edit().putString("training",json).commit();}catch(Exception ignored){}}final boolean ok=saved;runOnUiThread(()->web.evaluateJavascript("window.nativeTrainingSaved("+id+","+ok+")",null));}).start();}
   @JavascriptInterface public boolean saveTraining(String json){if(json==null||json.length()>524288)return false;try{new JSONObject(json);return getSharedPreferences("settings",0).edit().putString("training",json).commit();}catch(Exception e){return false;}}
 
   @JavascriptInterface public boolean hasPermission(){return allowed();}

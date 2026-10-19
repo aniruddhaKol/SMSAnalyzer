@@ -489,3 +489,46 @@ button:enabled.ui-pressed,a.ui-pressed,summary.ui-pressed,[role=button].ui-press
 .learning-review .learn-review-controls{margin-left:auto;justify-content:flex-end}
 
 .category-list-guidance .transfer-disclaimer{margin-top:0}
+
+#analysis-overlay{outline:none;border:0;padding:24px;background:transparent;color:#fff;box-shadow:none;text-align:center;max-width:85vw}
+#analysis-overlay::backdrop{background:rgba(0,0,0,.62)}
+#analysis-overlay img{display:block;width:112px;height:112px;object-fit:contain;margin:auto}
+#analysis-overlay p{margin:14px 0 0;font-size:12px;color:#fff}
+
+/* One compact load/reload control across SMS lists, previews and Home. */
+button.load-more-control{display:flex;align-items:center;justify-content:center;gap:8px;width:max-content;max-width:100%;flex:0 0 auto;min-width:0;min-height:42px;padding:9px 14px;margin:12px auto;background:linear-gradient(#f5f6f3,#e2e4e0,#c3c7c1);border:1px solid;border-color:#fff #959c92 #535b50 #e4e8e1;border-radius:5px;color:#3e443c;box-shadow:0 3px #535b50;overflow-anchor:none}
+.load-more-icon{width:24px;height:24px;object-fit:contain;flex:none}
+
+/* About & Help retains the supplied fieldsets and legends, using the selected app theme. */
+.settings-summary>div{flex:1;min-width:0}.settings-summary .settings-help{margin-left:auto;flex:none;width:36px;height:36px}.settings-help .ic{width:24px;height:24px}
+.help-doc{font:12px/1.65 'Roboto Mono',monospace;color:#30251f;overflow-wrap:anywhere}
+.help-doc header.hero{display:block;position:static;width:auto;height:auto;min-height:0;object-fit:initial;margin:0 0 18px;padding:12px;background:var(--help-chrome);color:#fff8ef;border:1px solid #b8a58c;border-radius:5px}
+.help-doc .by{margin:0;color:inherit}.help-doc .ver{display:inline-block;margin:0 5px;padding:1px 6px;border:1px solid #9cac86;border-radius:4px;background:#e5ecd9;color:#294122;font-size:11px;font-weight:600}
+.help-doc fieldset{min-width:0;margin:0 0 16px;padding:7px 12px 12px;background:#faf7f1;border:1px solid #b8a58c;border-radius:5px}
+.help-doc legend{max-width:100%;padding:3px 9px;background:#e5ecd9;color:#294122;border:1px solid #9cac86;border-left:3px solid #65844b;border-radius:4px;font-size:12px;font-weight:700}
+.help-doc h3{margin:13px 0 5px;font-size:11px;text-transform:uppercase;letter-spacing:.04em;color:#786859}.help-doc ul{margin:7px 0 0;padding-left:18px}.help-doc li{margin:4px 0}.help-doc li::marker{color:#65844b}
+.help-doc dl.screens{margin:8px 0 0}.help-doc dt{margin-top:14px;font-weight:700;color:var(--help-chrome)}.help-doc dt:first-child{margin-top:0}.help-doc dd{margin:4px 0 0 4px;padding-left:10px;border-left:2px solid #a98657}.help-doc dd p{margin:0}.help-doc dd ul{margin-top:4px}
+.help-doc table.ts{width:100%;border-collapse:collapse;font-size:11px;margin-top:6px}.help-doc table.ts th,.help-doc table.ts td{text-align:left;padding:8px 6px;border:0;vertical-align:top}.help-doc table.ts th{width:34%;color:var(--help-chrome);font-weight:600}.help-doc table.ts tr:nth-child(odd){background:#f0ebe3}
+.help-doc footer{padding:10px;background:var(--help-chrome);color:#fff8ef;border:1px solid #b8a58c;border-radius:5px;text-align:center;font-size:10px}
+
+/* Selected theme remains visible on Settings and its shared Help dialog. */
+#app[data-screen=settings] main.settings{background:transparent}
+.settings-summary .settings-help{background:linear-gradient(#ffffff20,#00000010),var(--chrome);color:#fff8ef;border-color:var(--control-border,#b59473);box-shadow:inset 0 1px #ffffff66,0 3px color-mix(in srgb,var(--chrome) 65%,#000);--press-dark:color-mix(in srgb,var(--chrome) 65%,#000);--press-light:var(--control-border,#b59473)}
+dialog.help-dialog{background:linear-gradient(#0003,#0003),var(--texture) center/cover;border-color:var(--control-border,#b59473)}
+.help-dialog .dialog-heading{background:var(--chrome);color:#fff8ef}
+.help-doc{--help-chrome:var(--chrome)}
+.help-doc legend{background:var(--chrome);color:#fff8ef;border-color:var(--control-border,#b59473);border-left-color:var(--control-border,#b59473)}
+.help-doc li::marker{color:var(--chrome)}.help-doc dd{border-left-color:var(--chrome)}
+.help-doc footer{background:var(--chrome);border-color:var(--control-border,#b59473)}
+
+/* Help is a readable popup, with sculpted app artwork instead of a recoloured line icon. */
+.settings-summary .settings-help{width:44px;height:44px;padding:4px;background:linear-gradient(#fffdf8,#eee5d9 55%,#d0c1b0);border-color:#fff #a59487 #786354 #e8ddd1;box-shadow:inset 0 1px #fff,0 3px #786354;--press-dark:#786354;--press-light:#e8ddd1}
+.settings-summary .settings-help .help-art{display:block;width:34px;height:34px;object-fit:contain}
+dialog.help-dialog[open]{max-height:calc(var(--dialog-height,var(--app-height,100dvh)) - 64px);max-width:420px;padding:0;background:#faf7f1;border:1px solid #a59487;border-radius:10px;box-shadow:0 14px 48px #0008}
+.help-dialog .dialog-heading{margin:0;padding:12px 14px;background:var(--chrome);border:0;color:#fff8ef;gap:10px}
+.help-dialog .dialog-heading h2{display:flex;align-items:center;gap:9px;font-size:16px;line-height:1.4}
+.help-dialog .dialog-heading h2:before{content:"";width:28px;height:28px;flex:none;background:url('assets/help-wood.png') center/contain no-repeat}
+.help-dialog #dialog-content{padding:16px 12px 12px;scrollbar-gutter:stable}
+.help-doc fieldset{margin:0 0 16px;padding:8px 12px 13px;border-color:#d6cabb;box-shadow:none;background:#fffdf8}
+.help-doc legend{padding:2px 7px;background:#faf7f1;color:var(--chrome);border:0;border-radius:0;font-size:12px}
+.help-doc footer{background:#eee8de;color:#503d2f;border:0;border-top:1px solid #d6cabb;border-radius:4px;padding:12px 8px}

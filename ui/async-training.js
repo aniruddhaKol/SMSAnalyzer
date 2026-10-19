@@ -1,0 +1,19 @@
+// Shared, atomic category/rule updates: analysis in a worker, persistence off the bridge thread.
+let trainingBusy=false,analysisWorker=null,analysisJob=0;
+Object.defineProperty(window,'trainingBusy',{get:()=>trainingBusy});
+let datasetCounter=0,workerDataset=null;const datasetIds=new WeakMap();
+const analysisJobs=new Map(),trainingSaves=new Map();
+function analysisOverlay(show,label='Applying changes…'){
+ let overlay=document.querySelector('#analysis-overlay');
+ if(show){if(!overlay){overlay=document.createElement('dialog');overlay.id='analysis-overlay';overlay.setAttribute('aria-label','Please wait');overlay.innerHTML='<div role="status" aria-live="polite"><img src="assets/wooden-hourglass.gif" alt=""><p></p></div>';overlay.addEventListener('cancel',e=>e.preventDefault());document.body.append(overlay);}overlay.querySelector('p').textContent=label;overlay.showModal();document.querySelector('#app').setAttribute('aria-busy','true');}
+ else{if(overlay?.open)overlay.close();document.querySelector('#app').removeAttribute('aria-busy');}
+}
+function analyseInWorker(config){
+ if(!analysisWorker){analysisWorker=new Worker('analysis-worker.js');workerDataset=null;analysisWorker.onmessage=({data})=>{const job=analysisJobs.get(data.id);if(!job)return;clearTimeout(job.timer);analysisJobs.delete(data.id);data.error?job.reject(Error(data.error)):job.resolve(data.analysed);};analysisWorker.onerror=()=>{for(const job of analysisJobs.values()){clearTimeout(job.timer);job.reject(Error('Background analysis failed. Your saved data was kept.'));}analysisJobs.clear();analysisWorker.terminate();analysisWorker=null;};}
+ return new Promise((resolve,reject)=>{const id=++analysisJob,timer=setTimeout(()=>{analysisJobs.delete(id);analysisWorker?.terminate();analysisWorker=null;reject(Error('Analysis timed out. Please try again.'));},120000);analysisJobs.set(id,{resolve,reject,timer});if(!datasetIds.has(rawMessages))datasetIds.set(rawMessages,++datasetCounter);const dataset=datasetIds.get(rawMessages);analysisWorker.postMessage({id,dataset,raw:workerDataset===dataset?undefined:rawMessages,config});workerDataset=dataset;});
+}
+window.nativeTrainingSaved=(id,ok)=>{const job=trainingSaves.get(id);if(!job)return;trainingSaves.delete(id);clearTimeout(job.timer);ok?job.resolve():job.reject(Error('Changes could not be saved. Please try again.'));};
+function persistTrainingAsync(config){const json=JSON.stringify(config);if(!native){localStorage.setItem('smsanalyzer.training',json);return Promise.resolve();}if(typeof Android.saveTrainingAsync!=='function')return Promise.reject(Error('Please install the updated APK to save changes.'));return new Promise((resolve,reject)=>{const id=++analysisJob,timer=setTimeout(()=>{trainingSaves.delete(id);reject(Error('Saving timed out. Please try again.'));},60000);trainingSaves.set(id,{resolve,reject,timer});try{Android.saveTrainingAsync(id,json);}catch(error){clearTimeout(timer);trainingSaves.delete(id);reject(error);}});}
+async function withAnalysisOverlay(label,operation){if(trainingBusy)throw Error('An update is already running.');trainingBusy=true;analysisOverlay(true,label);try{await new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r)));return await operation();}finally{trainingBusy=false;analysisOverlay(false);}}
+async function previewTrainingAsync(config){return withAnalysisOverlay('Preparing preview…',()=>analyseInWorker(config));}
+async function commitTrainingAsync(config){return withAnalysisOverlay('Applying changes…',async()=>{const source=rawMessages,baseline=training,analysed=await analyseInWorker(config);if(rawMessages!==source||training!==baseline)throw Error('The inbox changed during analysis. Please try again.');await persistTrainingAsync(config);training=config;messages=analysed;syncTrainingCategories(training);analysisCleared=false;queueAnalysisCache();});}
