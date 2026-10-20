@@ -532,3 +532,7 @@ dialog.help-dialog[open]{max-height:calc(var(--dialog-height,var(--app-height,10
 .help-doc fieldset{margin:0 0 16px;padding:8px 12px 13px;border-color:#d6cabb;box-shadow:none;background:#fffdf8}
 .help-doc legend{padding:2px 7px;background:#faf7f1;color:var(--chrome);border:0;border-radius:0;font-size:12px}
 .help-doc footer{background:#eee8de;color:#503d2f;border:0;border-top:1px solid #d6cabb;border-radius:4px;padding:12px 8px}
+
+.settings-options>.training-entry-note{margin-bottom:12px}
+
+.learning-home .learn-stats{grid-template-columns:repeat(2,minmax(0,1fr))}
