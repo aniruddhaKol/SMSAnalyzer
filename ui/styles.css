@@ -538,3 +538,5 @@ dialog.help-dialog[open]{max-height:calc(var(--dialog-height,var(--app-height,10
 .learning-home .learn-stats{grid-template-columns:repeat(2,minmax(0,1fr))}
 
 header .icon[data-go="settings"] .settings-gear-art{display:block;width:32px;height:32px;object-fit:contain;margin:0}
+
+.category-grid>.category-tile{border:1px solid var(--category-border);border-left-width:3px}
