@@ -1,0 +1,28 @@
+const {chromium}=require('playwright'),assert=require('node:assert/strict');
+(async()=>{
+ const browser=await chromium.launch({channel:'msedge',headless:true}),page=await browser.newPage({viewport:{width:360,height:850}}),errors=[];page.on('pageerror',e=>errors.push(e.message));
+ await page.addInitScript(()=>localStorage.setItem('smsanalyzer.settings',JSON.stringify({started:true,range:0})));await require('./ui-server.cjs').openUi(page);const settle=()=>page.waitForFunction(()=>!window.buttonFeedbackPending&&!window.trainingBusy);
+ const before=await page.evaluate(()=>{
+  training=defaultTraining();training.categories.push({id:'custom-empty',name:'A new category',color:'#66899c',icon:'emoji:📚'});
+  rawMessages=['Alpha Demo','Beta Demo','Gamma Demo'].map((name,i)=>({id:i,date:Date.now()-i*60000,sender:'AD-KOTAKB-S',body:'Sent INR '+(101+i)+' from Kotak Bank account XX1234 to '+name+'. UPI Ref '+(123456789000+i)+'.'}));const base=trainingBase();
+  training.rules=['Alpha Demo','Beta Demo'].map((name,i)=>({id:'l-'+i,name:name+' payment',type:'learning',kind:i?'category':'payment',category:'2',treatment:i?'unresolved':'payment',createdAt:1,future:true,historyAll:true,existing:[recordKey(base[i])],excluded:[],match:{entities:[name],keywords:[],accounts:i?['1234']:[],senders:[],types:[],direction:'outgoing',amount:0,pattern:''}}));
+  messages=analyzeWithTraining(rawMessages,training);const stored=categoryRulesStorage(training),restored=restoreCategoryRules(trainingClone(stored));
+  if(JSON.stringify(restored.rules)!==JSON.stringify(training.rules))throw Error('Source priority changed');if(JSON.stringify(analyzeWithTraining(rawMessages,restored))!==JSON.stringify(messages))throw Error('Analysis changed');
+  if(stored.ruleGroups.some(g=>!g.ruleset||g.patterns)||!stored.ruleGroups.find(g=>g.category==='custom-empty'&&!g.ruleset.sources.length))throw Error('Missing single/empty ruleset');
+  go('training');learning.step='manage';trainingTab='rules';render();return JSON.stringify(training.rules);
+ });
+ assert.equal(await page.locator('[data-training=removeRuleGroup]').count(),0);
+ const labels=await page.locator('[data-training=openRuleGroup]').evaluateAll(bs=>bs.map(b=>b.dataset.id));assert.deepEqual(labels,[...labels].sort((a,b)=>a.localeCompare(b,'en',{sensitivity:'base'})));
+ await page.locator('[data-training=openRuleGroup][data-id="Bills & Utilities"]').click();await settle();assert.equal(await page.locator('.rule-summary-card').count(),0);assert.equal(await page.locator('[data-training=removeRule]').count(),0);assert.equal(await page.locator('[data-training=editCategoryRuleset]').count(),1);assert.ok((await page.locator('#dialog-content').innerText()).includes('Alpha Demo · Beta Demo'));
+ await page.locator('[data-training=editCategoryRuleset]').click();await settle();assert.equal(await page.locator('[data-token-list=set-entities]>span').count(),2);assert.equal(await page.locator('#set-treatment').inputValue(),'__keep');assert.equal(await page.locator('#set-accounts').getAttribute('placeholder'),'Keep individual restrictions');
+ assert.equal(await page.locator('.rule-option-rows fieldset').count(),0);assert.equal(await page.locator('.rule-option-row').count(),3);assert.equal(await page.evaluate(()=>JSON.stringify(readCategoryRulesetConfig().rules)),before);
+ await page.locator('[data-ruleset-preview]').click();await settle();await page.locator('[data-training=previewBack]').click();await settle();assert.equal(await page.locator('[data-token-list=set-entities]>span').count(),2);
+ await page.locator('[data-token-input=set-entities]').fill('Gamma Demo');await page.locator('[data-token-add=set-entities]').click();await settle();await page.locator('#set-treatment').selectOption('payment');
+ await page.locator('[data-ruleset-preview]').click();await settle();await page.locator('[data-training=commit]').click();await settle();assert.equal(await page.locator('.rule-group-editor').count(),1);assert.equal(await page.locator('[data-training=editCategoryRuleset]').count(),1);assert.ok((await page.locator('#dialog-content').innerText()).includes('Gamma Demo'));
+ await page.locator('[data-rule-group-back]').click();await settle();await page.locator('[data-training=openRuleGroup][data-id="A new category"]').click();await settle();assert.ok((await page.locator('#dialog-content').innerText()).includes('No matching conditions yet'));await page.locator('[data-training=editCategoryRuleset]').click();await settle();assert.equal(await page.locator('[data-token-list=set-entities]>span').count(),0);
+ await page.locator('[data-ruleset-preview]').click();await settle();await page.locator('[data-training=commit]').click();await settle();assert.equal(await page.locator('.rule-group-editor').count(),1);
+ for(const width of [320,393]){await page.setViewportSize({width,height:850});assert.ok(await page.locator('#dialog-content').evaluate(e=>e.scrollWidth<=e.clientWidth));}
+ await page.locator('[data-rule-group-back]').click();await settle();await page.locator('[data-training=openRuleGroup][data-id="Bills & Utilities"]').click();await settle();await page.locator('[data-training=editCategoryRuleset]').click();await settle();
+ await page.screenshot({path:'work/ruleset-editor-v0107.png',fullPage:true});await page.evaluate(()=>window.goBack());assert.equal(await page.locator('.rule-group-editor').count(),1);
+ assert.deepEqual(errors,[]);await browser.close();console.log('PASS one sorted ruleset/category, persistent empty sets, no rule Delete, combined names, mixed restrictions/no-op, preview/Back/Apply, simple aligned options and narrow layout');
+})().catch(e=>{console.error(e);process.exit(1)});
