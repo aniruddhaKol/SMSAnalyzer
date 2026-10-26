@@ -15,7 +15,7 @@ function categoryRuleGroups(config=training){
 }
 function rulesetCategoryKey(value){value=canonicalTrainingCategory(String(value));return ({'topic:3':'2','topic:12':'action:others','5':'action:others'})[value]||value;}
 function rulesetCategoryDefinitions(config){
- const entries=[...trainingCore.names.map((name,i)=>({category:rulesetCategoryKey(i),name})),...[2,4,6,7,8,9,10,11,13].map(i=>({category:'topic:'+i,name:trainingCore.groups[i]})),...trainingActionCategories.filter(([key])=>!['recipient','recurring','duplicate'].includes(key)).map(([key,name])=>({category:'action:'+key,name})),...config.categories.map(c=>({category:c.id,name:c.name}))];
+ const entries=[...trainingCore.names.map((name,i)=>({category:rulesetCategoryKey(i),name})),...[2,4,6,7,8,9,10,11,13].map(i=>({category:rulesetCategoryKey('topic:'+i),name:trainingCore.groups[i]})),...trainingActionCategories.filter(([key])=>!['recipient','recurring','duplicate'].includes(key)).map(([key,name])=>({category:'action:'+key,name})),...config.categories.map(c=>({category:c.id,name:c.name}))];
  const byId=new Map();for(const c of entries)byId.set(c.category,c);return [...byId.values()];
 }
 function categoryRulesetEntry(group){

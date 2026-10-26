@@ -20,6 +20,7 @@ function affectedRecords(config){
 self.onmessage=({data})=>{try{
  const start=performance.now();training=restoreCategoryRules(data.config);
  if(dataset!==data.dataset){baseline=reconcileTransactions(assembleSmsRecords(data.raw).map(m=>classify({...m})));dataset=data.dataset;previousConfig=null;previousLocal=null;generic=null;}
+ if(data.baselineOnly){self.postMessage({id:data.id,analysed:baseline});return;}
  if(!generic||previousConfig&&semanticSettings(training)!==semanticSettings(previousConfig)){generic=structuredClone(baseline);for(const m of generic){applyGenericKnowledge(m,training);m.trainingOriginalPayee=m.payee?{...m.payee}:null;}}
  const indices=data.forceFull?null:affectedRecords(training),rows=indices?structuredClone(previousLocal):structuredClone(baseline);
  if(indices)for(const i of indices)rows[i]=structuredClone(baseline[i]);

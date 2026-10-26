@@ -2,11 +2,11 @@
 
 Android SMS insights and local learning by **Aniruddha DuttaChowdhury** · **ADChowdhury**.
 
-**Latest source version:** 0.1.109 · **Application ID:** `app.adc.smsanalyzer`
+**Latest source version:** 0.1.121 · **Application ID:** `app.adc.smsanalyzer`
 
-[Latest published APK](https://github.com/aniruddhaKol/SMSAnalyzer/releases/latest) · [Published v0.1.109 release notes](docs/release-v0.1.109.md) · [Screenshot details](docs/SCREENSHOTS.md)
+[Latest published APK](https://github.com/aniruddhaKol/SMSAnalyzer/releases/latest) · [Published v0.1.121 release notes](docs/release-v0.1.121.md) · [Screenshot details](docs/SCREENSHOTS.md)
 
-Latest changes are described in [the v0.1.109 release notes](docs/release-v0.1.109.md).
+Latest changes are described in [the v0.1.121 release notes](docs/release-v0.1.121.md).
 
 SMSAnalyzer reads permitted inbox messages on the device, identifies payments and credits, groups spending, and lets you correct classifications through a Learning Centre. The interface follows the TaskVilla Wood, Stone, Brick and BookShelves themes.
 
@@ -32,7 +32,7 @@ These are actual v0.1.66 interface renders with **synthetic sample SMS**, not a 
 
 ## Features
 
-- Home spending and credit summaries, previous-period comparison and monthly budget. Budget excludes EMI repayments, verified self-transfers and card settlements.
+- Home spending and credit summaries, previous-period comparison and monthly budget. Categories can be excluded from spending and the monthly budget; EMI and Transfers are excluded by default.
 - **Top payee** aggregates identified recipients for All time or the selected period. **Latest payments** shows individual outgoing payments, newest first, with five more records per Load more action. Its period toggle is hidden; returning to Top payee restores the previous selection.
 - Latest payments uses an extracted transaction date/time when supported and labels SMS received-time fallback. Existing duplicate and payment-treatment rules exclude duplicate notices, internal movements and non-payments.
 - Category amounts, source SMS previews, spending trends, bill/OTP/spam estimates and bank/merchant icons.

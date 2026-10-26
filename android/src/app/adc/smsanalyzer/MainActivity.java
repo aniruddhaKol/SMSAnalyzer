@@ -57,21 +57,20 @@ public class MainActivity extends Activity {
  private void loadSms(boolean startup){
   if(reading)return; reading=true;
   new Thread(()->{
-   long started=android.os.SystemClock.elapsedRealtime();JSONArray data=new JSONArray();boolean restored=false;
+   long started=android.os.SystemClock.elapsedRealtime();JSONArray data=new JSONArray();
    try{
-    if(startup){String revision=archive.revision(),training=getSharedPreferences("settings",0).getString("training","");JSONObject cached=archive.readAnalysis(archive.analysisSignature(revision,training,ANALYSIS_VERSION));if(cached!=null){JSONObject meta=new JSONObject().put("archiveRevision",revision).put("cacheHit",true).put("added",0).put("count",cached.getJSONArray("raw").length()).put("loadMs",android.os.SystemClock.elapsedRealtime()-started);String script="window.nativeMessages("+cached.getJSONArray("raw")+","+meta+","+cached.getJSONArray("analysed")+")";restored=true;runOnUiThread(()->web.evaluateJavascript(script,value->android.util.Log.i("SMSAnalyzerLoad","cachedHomeReadyMs="+(android.os.SystemClock.elapsedRealtime()-started))));}}
 
     if(allowed())try(Cursor c=getContentResolver().query(Uri.parse("content://sms/inbox"),new String[]{"_id","address","body","date"},null,null,"date DESC")){
      if(c!=null)while(c.moveToNext()){
      JSONObject m=new JSONObject();m.put("id",c.getLong(0));m.put("sender",c.isNull(1)?"Unknown":c.getString(1));m.put("body",c.isNull(2)?"":c.getString(2));m.put("date",c.getLong(3));data.put(m);
      }
     }
-    int added=archive.merge(data);if(restored&&added==0){android.util.Log.i("SMSAnalyzerLoad","backgroundUnchangedMs="+(android.os.SystemClock.elapsedRealtime()-started));return;}String revision=archive.revision(),training=getSharedPreferences("settings",0).getString("training",""),version=ANALYSIS_VERSION;
+    int added=archive.merge(data);String revision=archive.revision(),training=getSharedPreferences("settings",0).getString("training",""),version=ANALYSIS_VERSION;
     JSONObject snapshot=archive.readAnalysis(archive.analysisSignature(revision,training,version));
     data=snapshot==null?archive.readAll():snapshot.getJSONArray("raw");String analysis=snapshot==null?"null":snapshot.getJSONArray("analysed").toString();
     String result=data.toString();JSONObject meta=new JSONObject();meta.put("loadMs",android.os.SystemClock.elapsedRealtime()-started);meta.put("archiveRevision",revision);meta.put("cacheHit",snapshot!=null);meta.put("count",data.length());meta.put("added",added);meta.put("retention","indefinite");meta.put("encrypted",true);String summary=meta.toString();
     runOnUiThread(()->web.evaluateJavascript("window.nativeMessages("+result+","+summary+","+analysis+")",value->android.util.Log.i("SMSAnalyzerLoad","fullHomeReadyMs="+(android.os.SystemClock.elapsedRealtime()-started))));
-   }catch(Exception e){if(!restored)notifyError("Could not load the SMS archive. Your stored messages were kept. Check available device storage and try again.");}
+   }catch(Exception e){notifyError("Could not load the SMS archive. Your stored messages were kept. Check available device storage and try again.");}
    finally{reading=false;}
   }).start();
  }

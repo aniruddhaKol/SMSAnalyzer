@@ -569,3 +569,40 @@ header .icon[data-go="settings"] .settings-gear-art{display:block;width:32px;hei
 
 /* Match TaskVilla's text-only destructive confirmation button. */
 #editor-confirm .taskvilla-remove{background-color:#f4ceca;background-image:linear-gradient(to bottom,#fff0ee,#f7dad5 48%,#e4aaa2);color:#742c24;border-color:#fff5f3 #a9665f #7e3f37 #f3d4d0;box-shadow:inset 0 1px #ffffffcc,inset 0 -2px #a6635955,0 3px #7e3f37,0 5px 8px #24140c55;--press-dark:#7e3f37;--press-light:#f3d4d0}
+
+.trend-legend{margin:10px 0 3px}.trend-legend .legend{gap:7px 12px}.multi-series-chart{display:block;width:100%;height:auto}.trend-category-chart .section-heading,.trend-weekday-lines .section-heading{align-items:flex-start;flex-wrap:wrap}.trend-category-chart .section-heading small,.trend-weekday-lines .section-heading small{white-space:nowrap}
+
+.trend-legend .legend>.trend-series-toggle,.interactive-category-donut .legend>.trend-series-toggle{display:inline-flex;align-items:center;justify-content:center;gap:5px;min-height:32px;max-width:100%;margin:0;padding:4px 6px;font-size:10px;line-height:1.5;color:#30251f;background:#f0ece4;border:1px solid #d8d0c5;border-radius:4px;box-shadow:0 1px #b2aa9f;--press-dark:#8c8275;--press-light:#f8f5ef}.trend-series-toggle>span:last-child{overflow-wrap:anywhere}.trend-series-toggle[aria-pressed=false]>span{opacity:.4}.trend-series-toggle[aria-pressed=false]>span:last-child{text-decoration:line-through}.trend-series-toggle:focus-visible{outline-offset:0}
+
+.multi-series-chart{touch-action:pan-y;overflow:hidden;-webkit-user-select:none;user-select:none}.multi-series-chart.chart-zoomed{touch-action:none}.multi-series-chart polyline,.multi-series-chart circle,.multi-series-chart .chart-grid{vector-effect:non-scaling-stroke}.trend-zoom-tools{display:flex;align-items:center;justify-content:space-between;gap:8px;min-height:34px;margin-top:4px}.trend-zoom-tools .secondary{flex:none;width:auto;min-height:30px;padding:4px 10px;margin:0;font-size:10px}.trend-zoom-tools [hidden]{display:none}
+
+.interactive-category-donut .trend-series-toggle[aria-pressed=false] b{opacity:.4}
+
+/* A hidden series keeps its legend control available, with an explicit struck label. */
+.trend-series-toggle[aria-pressed=false] .chart-series-name{opacity:.4;text-decoration:line-through}
+.interactive-home-donut .legend>.trend-series-toggle{display:flex;align-items:center;gap:6px;width:100%;min-height:32px;margin:4px 0;padding:4px 5px;font-size:10px;line-height:1.5;text-align:left;color:#30251f;background:#f0ece4;border:1px solid #d8d0c5;border-radius:4px;box-shadow:0 1px #b2aa9f;--press-dark:#8c8275;--press-light:#f8f5ef}
+.interactive-home-donut .chart-series-name{flex:1;min-width:0;overflow-wrap:anywhere}.interactive-home-donut .legend b{margin-left:auto}.interactive-home-donut .trend-series-toggle[aria-pressed=false] b{opacity:.4}
+
+/* Shared category comparison pattern: label, percentage, and a slim rounded track. */
+.category-share-bars{display:flex;flex-direction:column;gap:10px;width:100%}
+.category-share-row{display:block;width:100%;min-height:40px;margin:0;padding:4px 0;background:transparent;color:#30251f;border:0;border-radius:3px;box-shadow:none;text-align:left}
+.category-share-heading{display:flex;align-items:baseline;justify-content:space-between;gap:10px;font-size:11px;line-height:1.5;margin-bottom:7px}
+.category-share-heading .chart-series-name{min-width:0;overflow-wrap:anywhere}.category-share-heading b{font-size:10px;font-weight:400;white-space:nowrap}
+.category-share-track{display:block;width:100%;height:7px;background:#ded7cd;border-radius:5px;overflow:hidden}
+.category-share-fill{display:block;height:100%;border-radius:inherit}
+.category-share-row[aria-pressed=false] .chart-series-name{text-decoration:line-through;opacity:.4}.category-share-row[aria-pressed=false] b{opacity:.4}
+.category-share-row:focus-visible{outline:2px solid var(--chrome);outline-offset:-2px}.category-share-row:active{filter:brightness(.9)}
+
+/* Static ranked category bars; five visible rows with the remainder in this chart's scroll area. */
+.category-share-row{flex-shrink:0;cursor:default}.category-share-row:active{filter:none;transform:none;box-shadow:none}
+.category-share-scroll{max-height:240px;overflow-y:auto;overscroll-behavior-y:contain;scrollbar-width:thin;scrollbar-color:#a98657 #eeeae2;padding-right:5px}
+.category-share-scroll::-webkit-scrollbar{width:4px}.category-share-scroll::-webkit-scrollbar-thumb{background:#a98657;border-radius:4px}
+/* Keep disclaimer contents and surfaces; unify only their amber borders. */
+.transfer-disclaimer,[data-screen=alerts] .alert-section-note,.spending-summary .previous-disclaimer{border:1px solid #d29342;border-left-width:3px}
+
+/* Home notices carry their existing accent colour around the tile. */
+.overview-stats .overview-stat{border:1px solid #cbbca2;border-left-width:3px}
+.overview-stats .overview-stat.stat-otp{border-color:#ffbc00}.overview-stats .overview-stat.stat-spam{border-color:#ff6871}
+.overview-stat::before{content:none;display:none}
+
+.category-editor-layout .training-form>.rule-option-row{display:flex;flex-direction:row;flex-wrap:nowrap;align-items:center;justify-content:space-between;gap:12px}.category-editor-layout .rule-option-row>span:first-child{white-space:nowrap}.category-editor-layout .rule-option-row>.settings-switch{margin-right:0;margin-left:auto;flex:0 0 44px}

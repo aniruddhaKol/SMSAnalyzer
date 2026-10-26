@@ -50,6 +50,6 @@ function consolidateAlerts(records){
  for(const receipt of loanReceipts){const candidates=records.filter(m=>m!==receipt&&!m.duplicate&&!m.isEmiRepayment&&m.isBankTransfer&&m.source.key===receipt.source.key&&m.sourceAccount&&m.sourceAccount===receipt.sourceAccount&&Math.abs(m.debit-receipt.debit)<0.005&&Math.abs(m.date-receipt.date)<=30*60000);if(candidates.length===1)duplicate(candidates[0],'Debit also confirmed by loan standing instruction');}
  for(const receipt of records.filter(m=>!m.duplicate&&m.debit>0&&/recharge[\s\S]*(?:successful|completed)/i.test(m.body))){const provider=payeeIdentity(receipt.source.label),candidates=records.filter(m=>m!==receipt&&!m.duplicate&&m.sourceKind==='card'&&m.payee?.key===provider.key&&Math.abs(m.debit-receipt.debit)<0.005&&Math.abs(m.date-receipt.date)<=30*60000);if(candidates.length===1)duplicate(receipt,'Recharge also reported by source card');}
 }
-function budgetSpend(data){return totalSpend(data.filter(m=>!m.isEmiRepayment));}
+function budgetSpend(data){return totalSpend(data);}
 function monthlyBudgetRecords(now=new Date()){const start=new Date(now.getFullYear(),now.getMonth(),1).getTime();return messages.filter(m=>m.date>=start&&m.date<=now.getTime());}
 
