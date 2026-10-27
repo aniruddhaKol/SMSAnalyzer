@@ -2,11 +2,11 @@
 
 Android SMS insights and local learning by **Aniruddha DuttaChowdhury** · **ADChowdhury**.
 
-**Latest source version:** 0.1.121 · **Application ID:** `app.adc.smsanalyzer`
+**Latest source version:** 0.1.127 · **Application ID:** `app.adc.smsanalyzer`
 
-[Latest published APK](https://github.com/aniruddhaKol/SMSAnalyzer/releases/latest) · [Published v0.1.121 release notes](docs/release-v0.1.121.md) · [Screenshot details](docs/SCREENSHOTS.md)
+[Latest published APK](https://github.com/aniruddhaKol/SMSAnalyzer/releases/latest) · [Published v0.1.127 release notes](docs/release-v0.1.127.md) · [Screenshot details](docs/SCREENSHOTS.md)
 
-Latest changes are described in [the v0.1.121 release notes](docs/release-v0.1.121.md).
+Latest changes are described in [the v0.1.127 release notes](docs/release-v0.1.127.md).
 
 SMSAnalyzer reads permitted inbox messages on the device, identifies payments and credits, groups spending, and lets you correct classifications through a Learning Centre. The interface follows the TaskVilla Wood, Stone, Brick and BookShelves themes.
 

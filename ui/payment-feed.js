@@ -1,5 +1,6 @@
 // Aniruddha DuttaChowdhury · ADChowdhury. Home-only view over existing analysis.
-let payeeView='top',latestPaymentLimit=5;
+let payeeView='latest',latestPaymentLimit=5;
+function resetHomeLists(){merchantLimit=5;latestPaymentLimit=5;}
 const paymentDateCache=new WeakMap();
 function paymentDate(m){
  if(paymentDateCache.has(m))return paymentDateCache.get(m);
