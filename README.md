@@ -12,7 +12,7 @@ SMSAnalyzer reads permitted inbox messages on the device, identifies payments an
 
 ## Screenshots
 
-These are actual v0.1.66 interface renders with **synthetic sample SMS**, not a real inbox. Native Android system bars are not included. Select an image to see it at full resolution.
+These are actual v0.1.127 interface renders with **synthetic sample SMS**, not a real inbox. Native Android system bars are not included. Select an image to see it at full resolution.
 
 | Home overview · Wood | Top payee · Stone |
 | --- | --- |
