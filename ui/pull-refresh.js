@@ -14,5 +14,6 @@ function bindPullRefresh(){
  main.addEventListener('touchcancel',reset,{passive:true});
 }
 let refreshOverlayActive=false,refreshOverlayTimer=null;
+function beginInboxOverlay(label){if(refreshOverlayActive)return;refreshOverlayActive=true;analysisOverlay(true,label);refreshOverlayTimer=setTimeout(()=>{if(!refreshOverlayActive)return;finishRefreshOverlay();refreshReason=null;loading=false;render();toast('Loading timed out. Please try again.');},120000);}
 function finishRefreshOverlay(){if(!refreshOverlayActive)return;refreshOverlayActive=false;clearTimeout(refreshOverlayTimer);refreshOverlayTimer=null;clearPullIndicator();analysisOverlay(false);}
 function reloadInbox(){if(loading||trainingBusy||refreshOverlayActive)return;if(!native){toast('SMS access is available in the Android APK.');return;}refreshReason='pull';loading=true;clearPullIndicator();refreshOverlayActive=true;analysisOverlay(true,'Refreshing SMS…');refreshOverlayTimer=setTimeout(()=>{if(!refreshOverlayActive)return;finishRefreshOverlay();refreshReason=null;loading=false;toast('Refresh timed out. Please try again.');},120000);requestAnimationFrame(()=>requestAnimationFrame(()=>{if(!refreshOverlayActive)return;try{if(Android.hasPermission())Android.refresh();else Android.requestSms();}catch(error){window.nativeError('Could not refresh SMS. Please try again.');}}));}

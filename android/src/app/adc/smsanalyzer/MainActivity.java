@@ -16,7 +16,7 @@ public class MainActivity extends Activity {
  private WebView web;
  private volatile boolean reading;
  // Bump only when parsing/classification semantics change, not for UI-only releases.
- private static final String ANALYSIS_VERSION="0.1.84";
+ private static final String ANALYSIS_VERSION="0.1.132";
  private SmsArchive archive;
  @Override public void onCreate(Bundle b) {
   super.onCreate(b);
@@ -38,7 +38,7 @@ public class MainActivity extends Activity {
    @Override public boolean shouldOverrideUrlLoading(WebView v, WebResourceRequest r){
     Uri u=r.getUrl(); String s=u.getScheme();if("appassets.androidplatform.net".equals(u.getHost()))return false;
     if ("https".equals(s)||"mailto".equals(s)||"tel".equals(s)) {
-     try { startActivity(new Intent(Intent.ACTION_VIEW,u)); } catch(Exception e) { notifyError("No app available to open this link."); }
+     try { startActivity(new Intent("mailto".equals(s)?Intent.ACTION_SENDTO:"tel".equals(s)?Intent.ACTION_DIAL:Intent.ACTION_VIEW,u)); } catch(Exception e) { notifyError("No app available to open this link."); }
     }
     return true;
    }

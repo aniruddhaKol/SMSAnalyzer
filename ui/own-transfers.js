@@ -37,6 +37,16 @@ function classifyOwnedTransfers(records,config){
   const ppf=accounts.filter(a=>a.bank===debit.source.key&&a.type==='ppf'),receipts=active.filter(c=>eligible(c)&&c.source.key===debit.source.key&&/\bPPF\b[\s\S]*\bdeposited\b/i.test(c.body)&&Math.abs(currencyAmount(c.body)-debit.debit)<.005&&Math.abs(c.date-debit.date)<=2*3600000);
   if(ppf.length===1&&receipts.length===1){own(debit,'Confirmed own PPF deposit receipt and owner name');own(receipts[0],debit.ownMatch);debit.isInvestment=true;}
  }
+ // A confirmed self-transfer is evidence for its opposite bank alert even when
+ // that bank/account has not separately been registered. Never infer from amount alone.
+ const byReference=new Map();
+ for(const m of active){if(!m.reference||!eligible(m))continue;const key=m.reference.trim().toUpperCase(),rows=byReference.get(key)||[];rows.push(m);byReference.set(key,rows);}
+ for(const seed of active.filter(m=>['own','own-credit'].includes(m.transferKind)&&m.reference&&eligible(m))){
+  for(const counterpart of byReference.get(seed.reference.trim().toUpperCase())||[]){
+   if(counterpart===seed||!compatible(seed,counterpart))continue;
+   if((seed.debit>0&&counterpart.credit>0&&!counterpart.debit)||(seed.credit>0&&counterpart.debit>0&&!seed.debit))own(counterpart,'Confirmed self-transfer counterpart with matching transaction reference');
+  }
+ }
  // An unmatched transfer remains an expense/credit with unknown purpose, never inferred ownership.
  for(const m of active){if(!m.trainingCategory&&!m.trainingTreatment&&!m.ownMatch&&m.isBankTransfer&&!m.isEmiRepayment&&m.transferKind!=='own'&&m.transferKind!=='card-settlement'&&(!m.payee||/^[x*\d]+$/i.test(m.payee.label))){m.group=12;m.spendGroup=5;}}
  return records;
