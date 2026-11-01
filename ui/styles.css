@@ -652,3 +652,8 @@ dialog:not(#analysis-overlay)>.dialog-heading{margin:calc(-1 * var(--popup-inset
 @media(max-width:370px){.trend-category-chart>.section-heading h2,.trend-weekday-lines>.section-heading h2{font-size:14px}}
 
 #app .bill-due-amount,#dialog .bill-due-amount{color:#a2392d;white-space:nowrap}.calendar-pill{font-weight:400}
+
+.spending-summary .previous-disclaimer .previous-dates{display:flex;align-items:center;justify-content:flex-start;white-space:normal;gap:0}.previous-dates .calendar-pill{font-size:10px}.date-range-art{display:block;width:28px;height:28px;object-fit:contain;flex:none;margin:0 4px}
+.trend-weekday-bars>.section-heading{display:flex;flex-wrap:nowrap;align-items:center;gap:8px}.trend-weekday-bars>.section-heading h2{flex:1;min-width:0;font-size:15px;line-height:1.35;margin:0;white-space:nowrap}@media(max-width:370px){.trend-weekday-bars>.section-heading h2{font-size:14px}}
+
+.date-range-art{width:28px;height:16px;margin:0 4px;object-fit:contain}

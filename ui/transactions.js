@@ -13,6 +13,7 @@ function extractPayee(body){
  const recipient=body.replace(/\b(Mr|Mrs|Ms)\./gi,'$1').match(/\b(?:transferred to|transfer to|trf to|sent\b[^\n]{0,120}?\bto)\s+([^\n]+?)(?=\s+(?:on|dt|via|ref(?:no|erence)?|a\/?c|ac|avl|available)\b|\.|$)/i);
  return recipient&&validPayee(recipient[1].trim())?payeeIdentity(recipient[1]):null;
 }
+function cardPaymentReceipt(body){return /\bcredit\s+card\b/i.test(body)&&/\bpayment\b[\s\S]{0,100}\breceived\b[\s\S]{0,50}\b(?:towards|for|on)\b/i.test(body)&&!/\b(?:refund|reversal|cashback|failed|declined)\b/i.test(body);}
 function describePayment(m){
  m.debit=m.amount;
  m.source=merchantIdentity(m.sender);
@@ -29,12 +30,14 @@ function describePayment(m){
  const explicitOwn=m.isBankTransfer&&/\b(?:self[- ]?transfer|own account|between (?:my|your|own) accounts)\b/i.test(m.body);
  const cardSettlement=m.debit>0&&!m.loan&&/\bcredit card\b[\s\S]{0,50}\b(?:payment|bill|repayment)\b|\bpayment\b[\s\S]{0,50}\bcredit card\b/i.test(m.body);
  m.transferKind=explicitOwn?'own':cardSettlement?'card-settlement':m.isBankTransfer?'unmatched':null;
+ if(cardPaymentReceipt(m.body)&&!m.isOtp){m.cardSettlementAmount=transactionAmount(m.body);m.credit=0;m.amount=0;m.debit=0;m.incomeType=null;m.transferKind='card-settlement';m.group=14;}
  if(m.transferKind==='own'||m.transferKind==='card-settlement'){m.amount=0;m.group=14;}
  return m;
 }
 function reconcileTransactions(records){
  records.forEach(m=>{m.detectedCredit=m.credit;m.detectedDebit=m.debit;});
  consolidateAlerts(records);
+ reconcileCardPayments(records);
  return records;
 }
 function consolidateAlerts(records){
@@ -53,3 +56,11 @@ function consolidateAlerts(records){
 function budgetSpend(data){return totalSpend(data);}
 function monthlyBudgetRecords(now=new Date()){const start=new Date(now.getFullYear(),now.getMonth(),1).getTime();return messages.filter(m=>m.date>=start&&m.date<=now.getTime());}
 
+
+// A co-branded card app also sells travel: require a unique matching issuer receipt.
+function reconcileCardPayments(records){
+ const receipts=records.filter(m=>m.cardSettlementAmount>0&&!m.duplicate),debits=records.filter(m=>m.debit>0&&!m.duplicate&&!m.isOtp);
+ const route=(debit,receipt)=>{const key=String(debit.payee?.label||'').replace(/[^a-z]/gi,'').toLowerCase();return key==='scapia'?['AXIS BANK','FEDERAL BANK'].includes(receipt.source.key):key&&merchantIdentity(debit.payee.label).key===receipt.source.key;};
+ const same=(debit,receipt)=>Math.abs(debit.debit-receipt.cardSettlementAmount)<.005&&Math.abs(debit.date-receipt.date)<=2*86400000&&route(debit,receipt);
+ for(const debit of debits){const matches=receipts.filter(r=>same(debit,r));if(matches.length!==1||debits.filter(d=>same(d,matches[0])).length!==1)continue;debit.amount=0;debit.transferKind='card-settlement';debit.group=14;debit.settlementMatch='Matching issuer card-payment receipt';}
+}

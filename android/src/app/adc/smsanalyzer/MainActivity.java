@@ -16,7 +16,7 @@ public class MainActivity extends Activity {
  private WebView web;
  private volatile boolean reading;
  // Bump only when parsing/classification semantics change, not for UI-only releases.
- private static final String ANALYSIS_VERSION="0.1.132";
+ private static final String ANALYSIS_VERSION="0.1.135";
  private SmsArchive archive;
  @Override public void onCreate(Bundle b) {
   super.onCreate(b);
