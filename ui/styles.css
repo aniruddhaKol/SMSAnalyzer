@@ -666,3 +666,8 @@ dialog:not(#analysis-overlay)>.dialog-heading{margin:calc(-1 * var(--popup-inset
 
 /* Align comparison and illustration to the same 12px content edges. */
 .spending-summary .period-comparison{margin-left:0;margin-right:0}
+
+/* Shared supplied empty-list artwork: standard content inset. */
+.empty-list-art{width:100%;margin:10px 0 0;padding:0}.empty-list-art img{display:block;width:100%;height:auto}.card .empty-list-art,dialog .empty-list-art{margin-top:0}.empty:has(.empty-list-art){padding:0}.empty-list-art~.empty-list-art{margin-top:12px}
+
+.empty-list-art+aside.analysis-disclaimer{margin-top:4px}
