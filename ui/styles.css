@@ -97,7 +97,7 @@ main{animation:none}
 
 /* Reference Home summary: typography remains Roboto Mono; surface follows the selected theme. */
 #app{--texture:url('assets/taskvilla-wood.png')}#app[data-theme=stone]{--texture:url('assets/taskvilla-stone.png')}#app[data-theme=brick]{--texture:url('assets/taskvilla-brick.png')}
-.spending-summary{position:relative;overflow:hidden;border-radius:19px;padding:19px 12px 11px;background:linear-gradient(110deg,#100904ed,#20180acc),var(--texture) center/cover;border:1px solid #b77959;color:#ffd1a9;isolation:isolate}
+.spending-summary{position:relative;overflow:hidden;border-radius:19px;padding:12px;background:linear-gradient(110deg,#100904ed,#20180acc),var(--texture) center/cover;border:1px solid #b77959;color:#ffd1a9;isolation:isolate}
 .spending-summary>*:not(.summary-art){position:relative;z-index:1}
 .spending-summary .summary-caption{font-size:14px;line-height:20px;color:#fff6ec;margin-left:7px}
 .spending-summary .spend-total{font-size:clamp(27px,8.7vw,42px);line-height:1.2;font-weight:700;margin:12px 7px 13px;color:#ffd1a9;letter-spacing:-1px;overflow-wrap:anywhere}
@@ -657,3 +657,12 @@ dialog:not(#analysis-overlay)>.dialog-heading{margin:calc(-1 * var(--popup-inset
 .trend-weekday-bars>.section-heading{display:flex;flex-wrap:nowrap;align-items:center;gap:8px}.trend-weekday-bars>.section-heading h2{flex:1;min-width:0;font-size:15px;line-height:1.35;margin:0;white-space:nowrap}@media(max-width:370px){.trend-weekday-bars>.section-heading h2{font-size:14px}}
 
 .date-range-art{width:28px;height:16px;margin:0 4px;object-fit:contain}
+
+.summary-topline{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}.spending-summary .summary-topline .summary-caption,.spending-summary .summary-topline .spend-total{margin-top:0;margin-bottom:0}.category-share-bars .chart-series-name{display:inline-flex;align-items:center;gap:5px}.category-share-bars .chart-series-name .ic{width:15px;height:15px;flex:none}.category-share-bars .category-button-emoji{font-size:15px;line-height:1}
+
+.spending-summary .summary-art{color:#9fb9c7;opacity:.50}.spending-summary .summary-topline .spend-total{margin-bottom:4px;text-shadow:0 1px 3px #20170fcc}
+
+.spending-summary .summary-art{top:12px;left:12px;right:auto}
+
+/* Align comparison and illustration to the same 12px content edges. */
+.spending-summary .period-comparison{margin-left:0;margin-right:0}

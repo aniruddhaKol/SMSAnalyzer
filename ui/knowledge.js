@@ -464,6 +464,7 @@ const GENERIC_KNOWLEDGE={
     }
   ]
 };
+GENERIC_KNOWLEDGE.merchants.push({name:'Bistro',aliases:['Bistro','Bistro by Blinkit'],category:'Food & Dining',topic:null,origin:'official-merchant'});
 function knowledgeKey(s){return String(s||'').toLowerCase().replace(/[^a-z0-9]/g,'');}
 function knowledgeMerchant(text){const key=knowledgeKey(text);return GENERIC_KNOWLEDGE.merchants.find(m=>m.aliases.some(a=>(knowledgeKey(a).length>3||knowledgeKey(a)===knowledgeKey(m.name)||/\d/.test(a))&&knowledgeKey(a)===key));}
 const KNOWLEDGE_MATCHERS=GENERIC_KNOWLEDGE.merchants.map(entry=>({entry,patterns:entry.aliases.filter(a=>knowledgeKey(a).length>3&&!['apollo','reliance'].includes(knowledgeKey(a))).map(a=>new RegExp('(^|[^a-z0-9])'+a.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')+'([^a-z0-9]|$)','i'))}));
