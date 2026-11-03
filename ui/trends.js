@@ -34,3 +34,6 @@ document.addEventListener('click',e=>{
  for(const item of plot.querySelectorAll('[data-trend-series]')){const shown=!hidden.has(item.dataset.trendSeries);item.setAttribute('aria-pressed',String(shown));item.setAttribute('aria-label',(shown?'Hide ':'Show ')+item.dataset.trendSeries);}
  main.scrollTop=scroll;
 });
+
+// Tap a chart line/point to read its nearest plotted value without changing zoom.
+document.addEventListener('click',e=>{const svg=e.target.closest('.multi-series-chart');if(!svg)return;const point=svg.createSVGPoint();point.x=e.clientX;point.y=e.clientY;const local=point.matrixTransform(svg.getScreenCTM().inverse());const dots=[...svg.querySelectorAll('circle')];let nearest=null,distance=Infinity;for(const dot of dots){const d=Math.hypot(local.x-dot.cx.baseVal.value,local.y-dot.cy.baseVal.value);if(d<distance){nearest=dot;distance=d;}}if(!nearest||distance>35)return;let output=svg.parentElement.querySelector('.trend-tap-value');if(!output){output=document.createElement('output');output.className='trend-tap-value';output.setAttribute('aria-live','polite');svg.after(output);}output.textContent=nearest.querySelector('title')?.textContent||'';});
