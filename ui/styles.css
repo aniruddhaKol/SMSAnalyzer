@@ -673,3 +673,5 @@ dialog:not(#analysis-overlay)>.dialog-heading{margin:calc(-1 * var(--popup-inset
 .empty-list-art+aside.analysis-disclaimer{margin-top:4px}
 
 .trend-tap-value{display:block;padding:6px 0;color:inherit;font-size:11px}.trend-tap-value:empty{display:none}
+
+.card.upcoming-bills-home{display:block;border:1px solid #d29342;border-left-width:3px}

@@ -21,8 +21,31 @@ function multiSeriesLineChart(buckets,series,label){
  const visible=series.filter(s=>!hiddenTrendSeries(label).has(s.name)),max=Math.max(1,...visible.flatMap(s=>s.values))*1.15,x=i=>44+i*248/Math.max(1,buckets.length-1),y=v=>145-v/max*115;
  return '<div class="interactive-trend-plot" data-trend-chart="'+esc(label)+'"><svg class="line-chart multi-series-chart'+(trendChartView(label).scale>1?' chart-zoomed':'')+'" viewBox="'+trendChartViewBox(label)+'" role="img" aria-label="'+esc(label)+'">'+[0,1,2,3].map(i=>'<line x1="44" y1="'+(30+i*38.33)+'" x2="295" y2="'+(30+i*38.33)+'" class="chart-grid"/><text class="flow-debit" x="36" y="'+(34+i*38.33)+'" text-anchor="end">'+compactMoney(max*(3-i)/3)+'</text>').join('')+visible.map(s=>'<polyline points="'+s.values.map((v,i)=>x(i)+','+y(v)).join(' ')+'" fill="none" stroke="'+s.color+'" stroke-width="2"/>'+s.values.map((v,i)=>'<circle cx="'+x(i)+'" cy="'+y(v)+'" r="2.6" fill="#faf7f1" stroke="'+s.color+'" stroke-width="1.5"><title>'+esc(s.name+' · '+buckets[i].description+': '+money(v))+'</title></circle>').join('')).join('')+buckets.map((b,i)=>'<text x="'+x(i)+'" y="170" text-anchor="middle">'+esc(b.label)+'</text>').join('')+'</svg>'+trendZoomTools(label)+trendSeriesLegend(series,label)+(!series.length?'<p class="muted">No financial amounts in these periods.</p>':'')+'</div>';
 }
+function expenseTrendChart(now=new Date()){
+ const heading='<div class="split section-heading"><h2>Expense trend</h2><small class="trend-period-pill">'+ic('calendar')+'Current month</small></div>';
+ const budget=Number(prefs.budget);
+ if(!(budget>0))return '<section class="card">'+heading+'<p class="muted">Set a monthly budget in Settings to see this trend.</p></section>';
+ const days=new Date(now.getFullYear(),now.getMonth()+1,0).getDate();
+ const daily=Array(days).fill(0);
+ for(const m of monthlyBudgetRecords(now))daily[new Date(m.date).getDate()-1]+=spendAmount(m);
+ let spent=0;
+ const values=daily.slice(0,now.getDate()).map(amount=>(spent+=amount)/budget*100);
+ const highest=Math.max(...values),scale=Math.max(100,Math.ceil(highest/25)*25);
+ const left=44,right=300,top=22,bottom=145;
+ const x=day=>left+(day-1)*(right-left)/(days-1),y=value=>bottom-value*(bottom-top)/scale;
+ const coordinates=values.map((value,i)=>x(i+1)+','+y(value)).join(' ');
+ const line='<polyline points="'+coordinates+'" fill="none" stroke-width="2.5" stroke-linejoin="round"/>';
+ const maxTick=Math.max(25,Math.ceil(scale/4/25)*25);
+ const grid=Array.from({length:Math.floor(scale/maxTick)+1},(_,i)=>i*maxTick).map(value=>'<line x1="'+left+'" x2="'+right+'" y1="'+y(value)+'" y2="'+y(value)+'" class="chart-grid"/><text x="36" y="'+(y(value)+4)+'" text-anchor="end">'+value+'%</text>').join('');
+ const labels=Array.from({length:days},(_,i)=>i+1).filter(d=>d===1||d%5===0).map(day=>'<text x="'+x(day)+'" y="168" text-anchor="middle">'+day+'</text>').join('');
+ const threshold=highest>100?'<line x1="'+left+'" x2="'+right+'" y1="'+y(100)+'" y2="'+y(100)+'" stroke="#a98657" stroke-dasharray="2 3"/><text x="'+right+'" y="'+(y(100)-5)+'" text-anchor="end">100% budget</text>':'';
+ const endpoint='<circle cx="'+x(values.length)+'" cy="'+y(values.at(-1))+'" r="3" fill="'+(values.at(-1)>100?'#b84237':'#36834f')+'"/>';
+ return '<section class="card">'+heading+'<svg class="line-chart" viewBox="0 0 320 184" role="img" aria-label="Cumulative spending through day '+values.length+' of '+days+': '+values.at(-1).toFixed(1)+'% of monthly budget"><defs><clipPath id="expense-under"><rect width="320" y="'+y(100)+'" height="'+(184-y(100))+'"/></clipPath><clipPath id="expense-over"><rect width="320" height="'+y(100)+'"/></clipPath></defs>'+grid+threshold+'<g clip-path="url(#expense-under)" stroke="#36834f">'+line+'</g><g clip-path="url(#expense-over)" stroke="#b84237">'+line+'</g>'+endpoint+labels+'</svg><small>Day of month · '+values.at(-1).toFixed(1)+'% of monthly budget used</small></section>';
+}
 function trendsScreen(){const buckets=trendBuckets(),data=filtered(),breakdown=spendBreakdown(data),spent=totalSpend(data),top=breakdown.indexOf(Math.max(...breakdown)),fixed=data.filter(m=>m.amount>0&&(m.subscription||m.spendGroup===3)),period={week:'Weekly',month:'Monthly',year:'Yearly'}[trendPeriod],caption={week:'Last 6 weeks',month:'Last 6 months',year:'Last 5 years'}[trendPeriod];
- return '<div class="trend-tabs" role="group" aria-label="Trend period">'+['week','month','year'].map(p=>'<button data-trend="'+p+'" aria-pressed="'+(trendPeriod===p)+'" class="'+(trendPeriod===p?'selected':'')+'">'+p[0].toUpperCase()+p.slice(1)+'</button>').join('')+'</div><section class="card trend-category-chart"><div class="split section-heading"><h2>Spend by category</h2><small class="trend-period-pill">'+ic('calendar')+caption+'</small></div>'+multiSeriesLineChart(buckets,trendCategorySeries(buckets),'Amounts by category')+'</section><section class="card trend-weekday-lines"><div class="split section-heading"><h2>Spend by weekday</h2><small class="trend-period-pill">'+ic('calendar')+caption+'</small></div>'+multiSeriesLineChart(buckets,trendWeekdaySeries(buckets),'Weekday spending by period')+'</section><section class="card trend-weekday-bars"><div class="split section-heading"><h2>Spend by weekday</h2><small class="trend-period-pill">'+ic('calendar')+caption+'</small></div>'+weekdayChart(buckets.flatMap(b=>b.rows),{start:buckets[0].start,end:Date.now()},false)+'</section><section class="card"><h2>Insights</h2><div class="row">'+ic('chart')+'<div>'+(spent?esc(spendNames[top])+' leads with '+flowMoney(breakdown[top],'debit')+', '+Math.round(breakdown[top]/spent*100)+'% of spend.':'No spending detected in this period.')+'</div></div><div class="row">'+ic('calendar')+'<div>EMI and subscription debit alerts total '+flowMoney(totalSpend(fixed),'debit')+' in this period.</div></div></section>';
+ const now=new Date(),month={start:new Date(now.getFullYear(),now.getMonth(),1).getTime(),end:now.getTime()};
+ const tabs='<div class="trend-tabs" role="group" aria-label="Trend period">'+['week','month','year'].map(p=>'<button data-trend="'+p+'" aria-pressed="'+(trendPeriod===p)+'" class="'+(trendPeriod===p?'selected':'')+'">'+p[0].toUpperCase()+p.slice(1)+'</button>').join('')+'</div>';
+ return expenseTrendChart()+'<section class="card trend-weekday-bars"><div class="split section-heading"><h2>Spend by weekday</h2><small class="trend-period-pill">'+ic('calendar')+'Current month</small></div>'+weekdayChart(monthlyBudgetRecords(now),month,false)+'</section>'+tabs+'<section class="card trend-category-chart"><div class="split section-heading"><h2>Spend by category</h2><small class="trend-period-pill">'+ic('calendar')+caption+'</small></div>'+multiSeriesLineChart(buckets,trendCategorySeries(buckets),'Amounts by category')+'</section><section class="card trend-weekday-lines"><div class="split section-heading"><h2>Spend by weekday</h2><small class="trend-period-pill">'+ic('calendar')+caption+'</small></div>'+multiSeriesLineChart(buckets,trendWeekdaySeries(buckets),'Weekday spending by period')+'</section><section class="card"><h2>Insights</h2><div class="row">'+ic('chart')+'<div>'+(spent?esc(spendNames[top])+' leads with '+flowMoney(breakdown[top],'debit')+', '+Math.round(breakdown[top]/spent*100)+'% of spend.':'No spending detected in this period.')+'</div></div><div class="row">'+ic('calendar')+'<div>EMI and subscription debit alerts total '+flowMoney(totalSpend(fixed),'debit')+' in this period.</div></div></section>';
 }
 
 document.addEventListener('click',e=>{
@@ -35,5 +58,21 @@ document.addEventListener('click',e=>{
  main.scrollTop=scroll;
 });
 
-// Tap a chart line/point to read its nearest plotted value without changing zoom.
-document.addEventListener('click',e=>{const svg=e.target.closest('.multi-series-chart');if(!svg)return;const point=svg.createSVGPoint();point.x=e.clientX;point.y=e.clientY;const local=point.matrixTransform(svg.getScreenCTM().inverse());const dots=[...svg.querySelectorAll('circle')];let nearest=null,distance=Infinity;for(const dot of dots){const d=Math.hypot(local.x-dot.cx.baseVal.value,local.y-dot.cy.baseVal.value);if(d<distance){nearest=dot;distance=d;}}if(!nearest||distance>35)return;let output=svg.parentElement.querySelector('.trend-tap-value');if(!output){output=document.createElement('output');output.className='trend-tap-value';output.setAttribute('aria-live','polite');svg.after(output);}output.textContent=nearest.querySelector('title')?.textContent||'';});
+// Compare in screen pixels so the tap target stays usable at every zoom level.
+function selectTrendPoint(svg,clientX,clientY){
+ const matrix=svg.getScreenCTM();if(!matrix)return;
+ const point=svg.createSVGPoint(),view=svg.viewBox.baseVal;
+ let nearest=null,distance=30;
+ for(const dot of svg.querySelectorAll('circle')){
+  point.x=dot.cx.baseVal.value;point.y=dot.cy.baseVal.value;
+  if(point.x<view.x||point.x>view.x+view.width||point.y<view.y||point.y>view.y+view.height)continue;
+  const position=point.matrixTransform(matrix);
+  const offset=Math.hypot(clientX-position.x,clientY-position.y);
+  if(offset<=distance){nearest=dot;distance=offset;}
+ }
+ if(!nearest)return;
+ let output=svg.parentElement.querySelector('.trend-tap-value');
+ if(!output){output=document.createElement('output');output.className='trend-tap-value';output.setAttribute('aria-live','polite');svg.after(output);}
+ output.textContent=nearest.querySelector('title')?.textContent||'';
+}
+document.addEventListener('click',e=>{const svg=e.target.closest('.multi-series-chart');if(svg)selectTrendPoint(svg,e.clientX,e.clientY);});

@@ -12,7 +12,7 @@ function trendTouches(e,svg){return [...e.touches].filter(t=>t.target instanceof
 function startTrendGesture(svg,touches){
  const v={...trendChartView(svg.closest('[data-trend-chart]').dataset.trendChart)},rect=svg.getBoundingClientRect();
  if(touches.length>=2){const [a,b]=touches,mid={x:(a.clientX+b.clientX)/2,y:(a.clientY+b.clientY)/2};trendChartGestures.set(svg,{count:2,view:v,distance:Math.max(1,Math.hypot(b.clientX-a.clientX,b.clientY-a.clientY)),anchor:{x:v.x+(mid.x-rect.left)/rect.width*320/v.scale,y:v.y+(mid.y-rect.top)/rect.height*184/v.scale}});}
- else if(touches.length===1&&v.scale>1)trendChartGestures.set(svg,{count:1,view:v,x:touches[0].clientX,y:touches[0].clientY});else trendChartGestures.delete(svg);
+ else if(touches.length===1&&v.scale>1)trendChartGestures.set(svg,{count:1,tap:true,view:v,x:touches[0].clientX,y:touches[0].clientY});else trendChartGestures.delete(svg);
 }
 document.addEventListener('touchstart',e=>{const svg=e.target.closest?.('.multi-series-chart');if(!svg)return;const touches=trendTouches(e,svg);startTrendGesture(svg,touches);if(touches.length>=2||trendChartView(svg.closest('[data-trend-chart]').dataset.trendChart).scale>1)e.preventDefault();},{passive:false});
 document.addEventListener('touchmove',e=>{
@@ -20,8 +20,12 @@ document.addEventListener('touchmove',e=>{
  if((touches.length>=2?2:touches.length)!==g.count){startTrendGesture(svg,touches);return;}
  const rect=svg.getBoundingClientRect();e.preventDefault();
  if(g.count===2){const [a,b]=touches,scale=Math.max(1,Math.min(6,g.view.scale*Math.hypot(b.clientX-a.clientX,b.clientY-a.clientY)/g.distance)),fx=((a.clientX+b.clientX)/2-rect.left)/rect.width,fy=((a.clientY+b.clientY)/2-rect.top)/rect.height;setTrendChartView(svg,{scale,x:g.anchor.x-fx*320/scale,y:g.anchor.y-fy*184/scale});}
- else if(g.count===1){setTrendChartView(svg,{scale:g.view.scale,x:g.view.x-(touches[0].clientX-g.x)/rect.width*320/g.view.scale,y:g.view.y-(touches[0].clientY-g.y)/rect.height*184/g.view.scale});}
+ else if(g.count===1){if(g.tap&&Math.hypot(touches[0].clientX-g.x,touches[0].clientY-g.y)<8)return;g.tap=false;setTrendChartView(svg,{scale:g.view.scale,x:g.view.x-(touches[0].clientX-g.x)/rect.width*320/g.view.scale,y:g.view.y-(touches[0].clientY-g.y)/rect.height*184/g.view.scale});}
 },{passive:false});
-document.addEventListener('touchend',e=>{const svg=e.target.closest?.('.multi-series-chart');if(svg)startTrendGesture(svg,trendTouches(e,svg));},{passive:true});
+document.addEventListener('touchend',e=>{const svg=e.target.closest?.('.multi-series-chart');if(!svg)return;
+ const remaining=trendTouches(e,svg),gesture=trendChartGestures.get(svg),touch=e.changedTouches[0];
+ if(!remaining.length&&gesture?.tap&&touch&&Math.hypot(touch.clientX-gesture.x,touch.clientY-gesture.y)<8)selectTrendPoint(svg,touch.clientX,touch.clientY);
+ startTrendGesture(svg,remaining);
+ if(remaining.length===1){const next=trendChartGestures.get(svg);if(next)next.tap=false;}},{passive:true});
 document.addEventListener('touchcancel',e=>{const svg=e.target.closest?.('.multi-series-chart');if(svg)trendChartGestures.delete(svg);},{passive:true});
 document.addEventListener('click',e=>{const button=e.target.closest('[data-trend-zoom-reset]');if(!button)return;const svg=button.closest('[data-trend-chart]').querySelector('svg');trendChartGestures.delete(svg);setTrendChartView(svg,{scale:1,x:0,y:0});});
