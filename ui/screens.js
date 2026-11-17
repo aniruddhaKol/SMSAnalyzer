@@ -69,7 +69,7 @@ function spendAmount(m,config=training){
 const totalSpend=(data,config=training)=>data.reduce((sum,m)=>sum+spendAmount(m,config),0);
 const isSelfTransfer=m=>['own','own-credit'].includes(m.transferKind);
 const totalCredit=data=>data.reduce((s,m)=>s+(isSelfTransfer(m)?0:m.credit),0);
-function compactMoney(n){return n>=100000? '₹'+(n/100000).toFixed(1)+'L':n>=1000?'₹'+(n/1000).toFixed(1)+'k':money(n);}
+function compactMoney(n){return n>=100000? '₹'+displayNumber(n/100000)+'L':n>=1000?'₹'+displayNumber(n/1000)+'k':money(n);}
 function periodLabel(){return (durations.find(([n])=>n===prefs.range)||durations[2])[1];}
 function shiftCalendarMonths(anchor,months){const d=new Date(anchor),day=d.getDate();d.setDate(1);d.setMonth(d.getMonth()+months);const last=new Date(d.getFullYear(),d.getMonth()+1,0).getDate();d.setDate(Math.min(day,last));return d;}
 function analysisWindow(now=new Date()){
@@ -97,14 +97,14 @@ function spendingComparison(current,window=analysisWindow()){
  else if(rawMessages.length&&!f.complete)text='Previous period incompletely covered by loaded SMS';
  else if(f.previous===0)text=f.current===0?'No spending in either period':'Previous spending was ₹0 · percentage unavailable';
  else if(f.current===f.previous)text='Same as the previous period';
- else {tone=f.current>f.previous?'higher':'lower';value=Math.abs(f.percent).toLocaleString('en-IN',{maximumFractionDigits:1})+'%';text=tone+' than the previous period';glyph=trendGlyph(tone==='higher');}
+ else {tone=f.current>f.previous?'higher':'lower';value=displayNumber(Math.abs(f.percent))+'%';text=tone+' than the previous period';glyph=trendGlyph(tone==='higher');}
  return '<div class="period-comparison"><span class="trend-note '+tone+'">'+glyph+(value?'<b>'+value+'</b> ':'')+'<span>'+esc(text)+'</span></span><aside class="transfer-disclaimer previous-disclaimer"><img class="disclaimer-icon" src="assets/disclaimer-warning.png" alt=""><small class="previous-total"><span class="previous-value">Previous period: '+flowMoney(f.previous,'debit')+'</span><span class="previous-dates">'+range+'</span></small></aside></div>';
 }
 function spendBreakdown(data){const values=spendNames.map(()=>0);data.forEach(m=>values[m.spendGroup]+=spendAmount(m));return values;}
 function categoryShareBars(entries,extraClass,showIcons=false){
  entries=[...entries].sort((a,b)=>b.value-a.value||a.name.localeCompare(b.name,'en',{sensitivity:'base'}));
  const total=entries.reduce((sum,e)=>sum+e.value,0),max=Math.max(1,...entries.map(e=>e.value));
- return `<div class="category-share-bars ${extraClass}">${entries.map(e=>`<div class="category-share-row"><span class="category-share-heading"><span class="chart-series-name">${showIcons?categoryAppearanceIcon(e.appearance):''}${esc(e.name)}</span><b>${total?Math.round(e.value/total*100):0}%</b></span><span class="category-share-track" aria-hidden="true"><span class="category-share-fill" style="width:${e.value/max*100}%;background:${e.color}"></span></span></div>`).join('')}${!entries.length?emptyListImage():''}</div>`;
+ return `<div class="category-share-bars ${extraClass}">${entries.map(e=>`<div class="category-share-row"><span class="category-share-heading"><span class="chart-series-name">${showIcons?categoryAppearanceIcon(e.appearance):''}${esc(e.name)}</span><b>${total?displayNumber(e.value/total*100):0}%</b></span><span class="category-share-track" aria-hidden="true"><span class="category-share-fill" style="width:${e.value/max*100}%;background:${e.color}"></span></span></div>`).join('')}${!entries.length?emptyListImage():''}</div>`;
 }
 function spendRing(data){const values=spendBreakdown(data);return categoryShareBars(spendNames.map((name,i)=>({name,i,value:values[i],color:spendColors[i],appearance:training.categories.find(c=>c.name===name)||defaultCategoryEntries().find(c=>c.name===name)})).filter(e=>e.value>0&&!categorySpendExcluded(e.name)),'home-category-bars',true);}
 
@@ -176,30 +176,52 @@ function compactOptions(id,label,entries,value,attribute){return '<details id="'
 function compactRange(){return ranges().replace('class="duration"','class="duration duration-compact"').replace(/<small>Duration<\/small>/,'').replace(ic('calendar'),'');}
 function pageToolbar(label){return `<div class="page-toolbar"><span>${esc(label)}</span>${compactRange()}</div>`;}
 function budgetTone(spent,budget){return !budget?'unset':spent>budget?'over':spent/budget<=.75?'safe':'warning';}
+// Keep the scatter stable while the screen rerenders.
+const budgetCurrencyMarks=Array.from({length:5},(_,i)=>({
+ offset:(Math.random()-.5)*.46,
+ slant:(i%2===0?1:-1)*(19+Math.random()*24),
+ inset:(Math.random()-.5)*11,
+ size:32+Math.random()*8
+}));
 function budgetGaugeArtwork(progress){
  const centerX=626,baseline=805,radius=491;
  const point=fraction=>[centerX-radius*Math.cos(Math.PI*fraction),baseline-radius*Math.sin(Math.PI*fraction)];
  const arc=(start,end)=>'M'+point(start).join(' ')+' A491 491 0 0 1 '+point(end).join(' ');
  const track=arc(0,1);
  const image='<image href="assets/budget-gauge-reference.png" width="1254" height="1254"/>';
- const fillArc=arc(0,progress);
+ // The exposed reference track is slightly off-circle. Its midpoint was
+ // sampled between the coloured inner and outer edges in the SVG coordinates.
+ const trackMidpoints=[[.55,491],[.6,495.5],[.65,491.5],[.7,487.5],[.75,484.5],[.8,481.5],[.85,481],[.9,482.5],[.95,485],[1,488.5]];
+ const fillPoint=fraction=>{
+  if(fraction<=trackMidpoints[0][0])return point(fraction);
+  const next=trackMidpoints.findIndex(([end])=>fraction<=end);
+  const [start,inner]=trackMidpoints[next-1], [end,outer]=trackMidpoints[next];
+  const measuredRadius=inner+(outer-inner)*(fraction-start)/(end-start);
+  const angle=Math.PI*fraction;
+  return [centerX-measuredRadius*Math.cos(angle),baseline-measuredRadius*Math.sin(angle)];
+ };
+ const fillArc='M'+Array.from({length:121},(_,i)=>fillPoint(progress*i/120).map(n=>n.toFixed(2)).join(' ')).join(' L');
  const ribbon=(phase,width,opacity)=>{
   const steps=Math.max(2,Math.ceil(160*progress));
   const samples=Array.from({length:steps+1},(_,i)=>{
    const fraction=progress*i/steps,angle=Math.PI*fraction;
    const ripple=22*Math.sin(7.5*angle+phase)+3*Math.sin(15*angle+phase);
-   const [x,y]=point(fraction);
+   const [x,y]=fillPoint(fraction);
    return (x-ripple*Math.cos(angle)).toFixed(1)+' '+(y-ripple*Math.sin(angle)).toFixed(1);
   });
   return '<path d="M'+samples.join(' L')+'" stroke="url(#budget-ribbon)" stroke-width="'+width+'" opacity="'+opacity+'"/>';
  };
- const rupees=[.055,.25,.475,.68,.88].filter(fraction=>fraction<progress-.018).map(fraction=>{
-  const [x,y]=point(fraction);
-  return '<text transform="translate('+x+' '+y+') rotate('+(180*fraction-90)+')" text-anchor="middle" dominant-baseline="central" fill="#ffe47e" opacity=".75" font-family="system-ui,sans-serif" font-size="42">₹</text>';
+ const markCount=Math.min(5,Math.floor(progress*12));
+ const rupees=budgetCurrencyMarks.slice(0,markCount).map((mark,i)=>{
+  const fraction=progress*(i+.5+mark.offset)/markCount;
+  const [x,y]=fillPoint(fraction),angle=Math.PI*fraction;
+  const markX=x-mark.inset*Math.cos(angle),markY=y-mark.inset*Math.sin(angle);
+  const rotation=180*fraction-90+mark.slant;
+  return `<text transform="translate(${markX} ${markY}) rotate(${rotation})" text-anchor="middle" dominant-baseline="central" fill="#ffe47e" opacity=".66" font-family="system-ui,sans-serif" font-size="${mark.size}">₹</text>`;
  }).join('');
  const fineRibbons=Array.from({length:12},(_,i)=>ribbon(i*.09+(i>=6?Math.PI:0),i%6===0?4:1.3,i%6===0?.88:.38)).join('');
  const glow=(fraction,angle)=>{
-  const [x,y]=point(fraction);
+  const [x,y]=fillPoint(fraction);
   return '<ellipse cx="0" cy="0" rx="63" ry="30" transform="translate('+x+' '+y+') rotate('+angle+')" fill="url(#budget-end-glow)"/>';
  };
  const fill=progress>0?`<path d="${fillArc}" stroke="#513300" stroke-opacity=".66" stroke-width="66" mask="url(#budget-fill-outline)"/><path d="${fillArc}" stroke="url(#budget-rim)" stroke-width="60" mask="url(#budget-fill-outline)"/><path d="${fillArc}" stroke="url(#budget-glass)" stroke-width="52"/>
@@ -208,7 +230,7 @@ function budgetGaugeArtwork(progress){
  return `<svg viewBox="83 255 1090 620" aria-hidden="true">
  <defs>
   <linearGradient id="budget-green" x2="0" y2="1"><stop stop-color="#57cf05"/><stop offset="1" stop-color="#158a19"/></linearGradient>
-  <linearGradient id="budget-glass" x2="0" y2="1"><stop stop-color="#fff2ad" stop-opacity=".3"/><stop offset=".43" stop-color="#0c1805" stop-opacity=".68"/><stop offset=".84" stop-color="#624713" stop-opacity=".48"/><stop offset="1" stop-color="#ffe785" stop-opacity=".4"/></linearGradient>
+  <linearGradient id="budget-glass" x2="0" y2="1"><stop stop-color="#b9ffce" stop-opacity=".32"/><stop offset=".24" stop-color="#08734f" stop-opacity=".74"/><stop offset=".52" stop-color="#052f25" stop-opacity=".78"/><stop offset=".81" stop-color="#137a54" stop-opacity=".72"/><stop offset="1" stop-color="#e9ffbc" stop-opacity=".38"/></linearGradient>
   <linearGradient id="budget-rim" x2="0" y2="1"><stop stop-color="#fff2b0" stop-opacity=".9"/><stop offset=".45" stop-color="#d5a32a" stop-opacity=".8"/><stop offset="1" stop-color="#ffe374" stop-opacity=".92"/></linearGradient>
   <radialGradient id="budget-end-glow"><stop stop-color="#fff9c7" stop-opacity=".95"/><stop offset=".34" stop-color="#ffe956" stop-opacity=".75"/><stop offset="1" stop-color="#ffbb20" stop-opacity="0"/></radialGradient>
   <linearGradient id="budget-ribbon" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#fffddd"/><stop offset=".45" stop-color="#f6c741" stop-opacity=".55"/><stop offset=".76" stop-color="#fff6a8"/><stop offset="1" stop-color="#d79716" stop-opacity=".55"/></linearGradient>
@@ -225,7 +247,7 @@ function budgetGaugeArtwork(progress){
  <g fill="none" stroke-linecap="round">${fill}</g>
  </svg>`;
 }
-function budgetWidget(){const spent=budgetSpend(monthlyBudgetRecords()),budget=Number(prefs.budget)||0,pct=budget?Math.round(spent/budget*100):0;return `<section class="card monthly-budget-card" data-budget-tone="${budgetTone(spent,budget)}"><div class="split section-heading"><h2>Monthly budget</h2></div><div class="budget-gauge">${budgetGaugeArtwork(budget?Math.max(0,Math.min(spent/budget,1)):0)}<div><strong>${budget?pct+'%':'—'}</strong><small>${budget?flowMoney(spent,'debit')+' of '+money(budget):'Set your own spending limit'}</small></div></div><aside class="transfer-disclaimer budget-disclaimer"><img class="disclaimer-icon" src="assets/disclaimer-warning.png" alt=""><div>Current calendar month · category exclusions applied${budget?' · '+flowMoney(Math.abs(budget-spent),spent>budget?'debit':'credit')+(spent>budget?' extra':' left'):' · Set a budget in Settings'}</div></aside></section>`;}
+function budgetWidget(){const spent=budgetSpend(monthlyBudgetRecords()),budget=Number(prefs.budget)||0,pct=budget?displayNumber(spent/budget*100):0,balance=Math.round((budget-spent)*100)/100;return `<section class="card monthly-budget-card" data-budget-tone="${budgetTone(spent,budget)}"><div class="split section-heading"><h2>Monthly budget</h2></div><div class="budget-gauge">${budgetGaugeArtwork(budget?Math.max(0,Math.min(spent/budget,1)):0)}<div><strong>${budget?pct+'%':'—'}</strong><small>${budget?flowMoney(spent,'debit')+' of '+money(budget):'Set your own spending limit'}</small></div></div><aside class="transfer-disclaimer budget-disclaimer"><img class="disclaimer-icon" src="assets/disclaimer-warning.png" alt=""><div>Current calendar month · category exclusions applied${budget?' · '+'<strong>'+flowMoney(Math.abs(balance),balance<0?'debit':'credit')+'</strong>'+(balance<0?' extra':' left'):' · Set a budget in Settings'}</div></aside></section>`;}
 function overviewScreen(){const window=analysisWindow(),data=messages.filter(m=>m.date>=window.start&&m.date<=window.end),spent=totalSpend(data),credit=totalCredit(data),upcoming=dueBills(messages);return `${pageToolbar("Overview for")}<section class="card spending-summary"><div class="summary-topline"><small class="summary-caption">Spent</small><strong class="spend-total">${money(spent)}</strong></div><svg class="summary-art" aria-hidden="true"></svg>${spendingComparison(spent,window)}<div class="summary-metrics"><div class="credit-metric"><span class="metric-icon credit-emoji" aria-hidden="true">💰</span><div><small>Credited</small><strong>${money(credit)}</strong></div></div><div class="parsed-metric"><span class="metric-icon">${ic("message")}</span><div><small title="Non-duplicate messages with detected spending or credits">Financial SMS</small><strong>${data.filter(m=>!m.duplicate&&(m.amount||m.credit)).length}</strong></div></div></div></section>${budgetWidget()}<section class="card"><div class="split section-heading"><h2>Spend by category</h2></div>${spendRing(data)}</section>${upcomingBillsHome(upcoming)}<section class="card merchants-card">${payeeSectionHeader()}${payeeSectionBody()}</section>${analysisCleared?'<section class="card notice">Analysis cleared. Your inbox records are retained. Pull down to rebuild the results.</section>':!messages.length?empty('Your overview is ready','Allow SMS access to analyse your inbox.'):''}`;}
 function categoryRecords(data,index){const spending={3:2,4:1,5:4,7:3,12:5,15:0};return data.filter(m=>index===0?(m.debit>0&&!m.ignored&&!isSelfTransfer(m)):index===1?(m.credit>0&&!isSelfTransfer(m)):index===13?(m.isInvestment||m.group===13):index===16?(m.credit>0&&m.incomeType==='salary'&&m.transferKind!=='own-credit'):index===4?(m.isEcommerce||m.group===4||(m.amount>0&&m.spendGroup===1)):(spending[index]!==undefined&&m.amount>0?m.spendGroup===spending[index]:m.group===index));}
 function categoryAmounts(data,index){
@@ -247,7 +269,7 @@ function categoryAmounts(data,index){
  }
  return parts.map(p=>'<small class="category-amount"><span class="category-amount-label">'+esc(p.label)+'</span><b class="category-amount-value">'+flowMoney(p.amount,p.flow)+'</b></small>').join('');
 }
-function categoryMetrics(data,index,count,total){const spent=totalSpend(categoryRecords(data,index)),share=index!==0&&spent>0&&total>0?Math.round(spent/total*100):null;return '<div class="category-metrics"><span class="category-message-count" aria-label="'+count+' SMS">'+ic('messageSquareText')+'<strong class="tile-count">'+count+'</strong></span>'+(share!==null?'<span class="category-metric-separator" aria-hidden="true"></span><strong class="tile-percentage" title="Share of detected spending">'+share+'%</strong>':'')+'</div>';}
+function categoryMetrics(data,index,count,total){const spent=totalSpend(categoryRecords(data,index)),share=index!==0&&spent>0&&total>0?displayNumber(spent/total*100):null;return '<div class="category-metrics"><span class="category-message-count" aria-label="'+count+' SMS">'+ic('messageSquareText')+'<strong class="tile-count">'+count+'</strong></span>'+(share!==null?'<span class="category-metric-separator" aria-hidden="true"></span><strong class="tile-percentage" title="Share of detected spending">'+share+'%</strong>':'')+'</div>';}
 function categoryTagRing(counts,tagTotal,messageTotal){return categoryShareBars(categoryChartOrder().filter(({i})=>counts[i]).map(({name,i})=>({name,i,value:counts[i],color:groupColors[i],appearance:training.categories.find(c=>c.name===name)||defaultCategoryEntries().find(c=>c.name===name)})),'category-share-scroll',true);}
 
 function categoryScreens(){const data=filtered(),counts=groupNames.map((_,i)=>categoryRecords(data,i).length),tagTotal=counts.reduce((a,b)=>a+b,0),expenseTotal=totalSpend(data);return pageToolbar(data.length.toLocaleString('en-IN')+' messages')+'<section class="card"><div class="split section-heading"><h2>Category share</h2><small>'+periodLabel()+'</small></div>'+categoryTagRing(counts,tagTotal,data.length)+'</section><div class="category-grid">'+groupNames.map((name,i)=>({name,i})).sort((a,b)=>{const rank=i=>i===1?0:i===0?1:2;return rank(a.i)-rank(b.i)||a.name.localeCompare(b.name,'en',{sensitivity:'base'});}).map(({name,i})=>'<section class="card category-tile '+(i===0?'debit-tile':i===1?'credit-tile':'')+'" style="--category-border:'+groupColors[i]+'"><button class="category-open" data-open-category="'+i+'" aria-label="View '+esc(name)+' SMS"></button><div class="tile-heading"><span class="tile-icon" style="background:'+groupColors[i]+'20;color:'+groupColors[i]+'">'+categoryDisplayIcon(i)+'</span><h3>'+esc(name)+'</h3><button class="category-delete bevel" data-delete-group="'+i+'" title="Delete category" aria-label="Delete '+esc(name)+'">'+ic('trash')+'</button></div>'+categoryMetrics(data,i,counts[i],expenseTotal)+categoryAmounts(data,i)+'</section>').join('')+'</div>';}
@@ -265,7 +287,7 @@ function calendarPill(label){return '<span class="calendar-pill">'+ic('calendar'
 function billRows(data){return data.slice(0,6).map(m=>`<button class="row merchant-row alert-sms-row" data-alert-sms="${recordKey(m)}" data-alert-kind="${m.subscription?'subscriptions':'bills'}" aria-label="Open SMS from ${esc(m.sender)}"><span class="tile-icon">${ic(m.subscription?'calendar':'chart')}</span><div><strong>${esc(m.sender)}</strong><small>${m.due!==null?calendarPill('Due '+date(m.due)):'Renewal date not detected'}</small></div><b class="bill-due-amount">${billNoticeAmount(m.body)?money(billNoticeAmount(m.body)):'—'}</b></button>`).join('')||alertEmpty();}
 function upcomingBillsHome(bills){
  if(!bills.length)return '';
- return '<section class="card transfer-disclaimer upcoming-bills-home"><div class="split section-heading"><h2>Upcoming bills</h2><small>'+bills.length+' detected</small></div>'+billRows(bills)+(bills.length>6?'<button class="secondary" data-overview-alert="bills">View all bills</button>':'')+'</section>';
+ return '<section class="card upcoming-bills-home"><div class="split section-heading"><h2>Upcoming bills</h2><small>'+bills.length+' detected</small></div>'+billRows(bills)+(bills.length>6?'<button class="secondary" data-overview-alert="bills">View all bills</button>':'')+'</section>';
 }
 function alertsScreen(){const data=filtered(),spam=data.filter(m=>m.spam),bills=dueBills(messages),subscriptions=uniqueAlerts(data.filter(m=>m.subscription&&!m.scheduledDebit&&!m.amount&&!m.credit));return `<section class="card notice fraud-card"><span class="tile-icon">${ic('shield')}</span><div><h3>${spam.length} suspicious message${spam.length===1?'':'s'} flagged</h3><small>Keyword flags need your review.</small></div>${spam.length?'<button class="secondary" data-action="reviewFlags">Review</button>':''}</section><section class="card"><div class="split section-heading"><h2>Upcoming bills</h2><small>${bills.length} detected</small></div>${billRows(bills)}${smsDisclaimer('Only explicit due dates are recognised. Check amounts and dates in your original alerts.').replace('transfer-disclaimer','transfer-disclaimer notice alert-section-note')}</section><section class="card"><h2>Subscriptions detected</h2>${billRows(subscriptions)}${smsDisclaimer('Renewal notices found by keywords. Billing frequency is not assumed.').replace('transfer-disclaimer','transfer-disclaimer notice alert-section-note')}</section><aside class="card notice analysis-disclaimer alert-footer"><img class="disclaimer-icon" src="assets/disclaimer-warning.png" alt=""><span>Possible spam is flagged for review. SMSAnalyzer does not block senders or hide, send or delete messages.</span></aside>`;}
 document.addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;if(b.dataset.payeeScope&&!b.disabled&&payeeView!=='latest'){const top=document.querySelector('main').scrollTop;payeeScope=b.dataset.payeeScope;prefs.payeeScope=payeeScope;merchantLimit=5;save();render();document.querySelector('main').scrollTop=top;}if(b.dataset.action==='moreMerchants'){merchantLimit+=5;appendListPage(b,payeeSectionBody(),'.merchant-row',document.querySelector('.merchants-card'));}if(b.dataset.trend){trendPeriod=b.dataset.trend;renderAtCurrentScroll(b);}if(b.dataset.action==='reviewFlags')openCategorySms(11,'spam','alerts');if(b.dataset.action==='budget'){modal('<h2>Monthly budget</h2><div class="budget-form-scroll"><p class="budget-description">Current calendar month. Categories marked Exclude from spending are omitted. EMI and Transfers are excluded by default.</p><label for="budget-value">Amount in INR</label><div class="budget-input"><span aria-hidden="true">₹</span><input id="budget-value" type="text" inputmode="decimal" autocomplete="off" aria-label="Monthly budget amount in INR" value="'+formatBudgetAmount(String(Number(prefs.budget)||''))+'"></div></div><div class="dialog-actions"><button class="secondary" data-action="clearBudget">Remove</button><button class="primary" data-action="saveBudget">Save</button></div>');document.querySelector('#budget-value').dataset.previous=document.querySelector('#budget-value').value;}if(b.dataset.action==='saveBudget'){const value=parseBudgetAmount(document.querySelector('#budget-value').value);if(!Number.isFinite(value)||value<1||value>100000000){toast('Enter an amount from ₹1 to ₹10,00,00,000');return;}prefs.budget=Math.round(value);save();document.querySelector('#dialog').close();render();}if(b.dataset.action==='clearBudget'){delete prefs.budget;save();document.querySelector('#dialog').close();render();}});
