@@ -164,7 +164,7 @@ function decorateRulePatternDialog(content){
 function confirmRuleGroupRemoval(key){
  const group=categoryRuleGroups().find(g=>g.key===key);if(!group)throw Error('Category rule no longer exists.');
  pendingRuleGroupRemoval=key;ruleGroupReturnScroll=document.querySelector('main')?.scrollTop||0;
- modal('<h2>Remove category rule?</h2><div class="account-remove-confirm"><p>Remove all '+group.patterns.length+' matching patterns for '+esc(group.name)+'?</p>'+smsDisclaimer('Original SMS stay unchanged. Transactional matches return to Others unless another saved classification applies.')+'<div class="dialog-actions"><button class="secondary" data-rule-group-back>Cancel</button><button class="danger" data-rule-group-confirm>'+ic('trash')+'Remove</button></div></div>');
+ modal('<h2>Remove category rule?</h2><div class="account-remove-confirm"><p>Remove all '+group.patterns.length+' matching patterns for '+esc(group.name)+'?</p>'+smsDisclaimer('Original SMS stay unchanged. Transactional matches return to Others unless another saved classification applies.')+'<div class="dialog-actions"><button class="secondary" data-rule-group-back>Cancel</button><button class="danger" data-rule-group-confirm>Remove</button></div></div>');
 }
 document.addEventListener('click',e=>{
  const button=e.target.closest('button');if(!button)return;

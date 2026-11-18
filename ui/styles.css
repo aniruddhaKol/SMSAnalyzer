@@ -623,7 +623,7 @@ dialog .dialog-actions{gap:4px}dialog.budget-dialog .dialog-actions,#editor-conf
 
 /* Notice actions stay above the original SMS; popup headers meet the outer frame. */
 .sms-notice-actions{margin-top:0;margin-bottom:10px}
-dialog:not(#analysis-overlay){--popup-inset:12px}dialog.account-confirm-dialog{--popup-inset:18px}dialog.help-dialog{--popup-inset:0px}
+dialog:not(#analysis-overlay){--popup-inset:12px}#dialog.account-confirm-dialog{--popup-inset:18px}dialog.help-dialog{--popup-inset:0px}
 dialog:not(#analysis-overlay)>.dialog-heading{margin:calc(-1 * var(--popup-inset)) calc(-1 * var(--popup-inset)) 10px;padding:7px 10px;border-radius:7px 7px 0 0}
 
 /* Continuous saturation/brightness square and a separate vertical hue spectrum. */
@@ -675,3 +675,26 @@ dialog:not(#analysis-overlay)>.dialog-heading{margin:calc(-1 * var(--popup-inset
 .trend-tap-value{display:block;padding:6px 0;color:inherit;font-size:11px}.trend-tap-value:empty{display:none}
 
 .card.upcoming-bills-home{display:block;border:1px solid #d29342;border-left-width:3px}
+
+/* Activity Tracker autocomplete layout, adapted to the existing account editor. */
+.account-tracker-field{display:flex;flex-direction:column}
+.account-tracker-field input{width:100%;max-width:100%;box-sizing:border-box}
+.account-suggestions{border:1px solid #c9baa5;background:#fffdf8;border-radius:5px;max-height:240px;overflow:auto;margin-top:-8px;margin-bottom:10px;padding:3px}
+.account-suggestions[hidden]{display:none}
+.account-suggestions button{display:flex;gap:9px;align-items:center;text-align:left;font-size:11px;width:100%;min-height:44px;padding:8px;background:transparent;color:#30251f;border:0;border-radius:5px;box-shadow:none}
+.account-suggestions button:nth-child(even){background:#eee7dc}
+.account-suggestions button:hover,.account-suggestions button:focus,.account-suggestions button[aria-selected=true]{background:#dfe8d6}
+.account-suggestions img{width:26px;height:26px;object-fit:contain;flex:none}
+.account-suggestions span{min-width:0;overflow-wrap:anywhere}
+.budget-gauge strong.budget-percentage-long{font-size:calc(30px - 1pt)}
+
+#editor-confirm>.dialog-heading{margin:-12px -12px 12px;padding:7px 10px;background:var(--chrome,#654633);color:#fff8ef;border:1px solid #ffffff55;border-right-color:#0004;border-bottom-color:#0005;border-radius:7px 7px 0 0;box-shadow:inset 1px 1px #fff3,inset -1px -1px #0002}
+
+/* Restore the existing pale-red destructive bevel after the neutral-button rules. */
+button.danger,.account-remove-confirm button.danger,.owned-account-row .account-remove,button:has(>img[src$="trash-wood.png"]){background:linear-gradient(to bottom,#fff0ee,#f7dad5 48%,#e4aaa2);color:#742c24;border:1px solid;border-color:#fff5f3 #a9665f #7e3f37 #f3d4d0;box-shadow:inset 0 1px #fffc,inset 0 -2px #a6635955,0 3px #7e3f37,0 5px 8px #24140c55;--press-dark:#7e3f37;--press-light:#f3d4d0}
+
+#dialog.category-remove-dialog{padding-bottom:12px}
+.category-remove-confirm{display:flex;flex-direction:column;gap:12px}
+#dialog .category-remove-confirm>p,#dialog .category-remove-confirm>.transfer-disclaimer,#dialog .category-remove-confirm>.dialog-actions{margin:0}
+.category-remove-confirm>.dialog-actions{padding-bottom:3px}
+.category-remove-confirm>.dialog-actions>button{margin:0}

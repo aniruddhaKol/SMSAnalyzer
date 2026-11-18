@@ -1,6 +1,6 @@
 // Reuse the same classification engine; UI listeners are inert in this worker.
 const document={addEventListener(){}};const window=self;const native=false;let prefs={range:0},rawMessages=[],messages=[];
-importScripts('analysis-core.js','standard-sms.js','screens.js','banks.js','bank-accounts.js','merchant-catalogue.js','brands.js','transactions.js','own-transfers.js','knowledge.js','category-rules.js','training.js','sms-patterns.js','learning.js','sms-context.js');
+importScripts('analysis-core.js','standard-sms.js','screens.js','banks.js','bank-accounts.js','merchant-catalogue.js','brands.js','transactions.js','own-transfers.js','knowledge.js','category-rules.js','training.js','sms-patterns.js','learning.js','sms-context.js','catalogue-sync.js');
 let dataset=null,baseline=null,generic=null,previousConfig=null,previousLocal=null;
 function semanticSettings(config){const {rules,ruleGroups,version,defaultAppearance,threshold,categoryResets,corrections,...rest}=config;return JSON.stringify(rest);}
 function affectedRecords(config){
@@ -18,8 +18,11 @@ function affectedRecords(config){
  return affected;
 }
 self.onmessage=({data})=>{try{
+ if(data.raw)rawMessages=data.raw;
+ const catalogueVersion=data.catalogue?.last_updated;
+ if(remoteCatalogue.last_updated!==catalogueVersion){applyRemoteCatalogue(data.catalogue);dataset=null;}
  const start=performance.now();training=restoreCategoryRules(data.config);
- if(dataset!==data.dataset){baseline=reconcileTransactions(assembleSmsRecords(data.raw).map(m=>classify({...m})));dataset=data.dataset;previousConfig=null;previousLocal=null;generic=null;}
+ if(dataset!==data.dataset){baseline=reconcileTransactions(assembleSmsRecords(rawMessages).map(m=>classify({...m})));dataset=data.dataset;previousConfig=null;previousLocal=null;generic=null;}
  if(data.baselineOnly){self.postMessage({id:data.id,analysed:baseline});return;}
  const canUpdate=previousConfig&&semanticSettings(training)===semanticSettings(previousConfig);
  if(!canUpdate)generic=null;

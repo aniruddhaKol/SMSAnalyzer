@@ -30,17 +30,25 @@ function expenseTrendChart(now=new Date()){
  for(const m of monthlyBudgetRecords(now))daily[new Date(m.date).getDate()-1]+=spendAmount(m);
  let spent=0;
  const values=daily.slice(0,now.getDate()).map(amount=>(spent+=amount)/budget*100);
- const highest=Math.max(...values),scale=Math.max(100,Math.ceil(highest/25)*25);
+ const highest=Math.max(...values),normalizedMax=Math.round(highest*100)/100,scale=normalizedMax<=100?100:(Math.floor(normalizedMax/25)+1)*25;
  const left=44,right=300,top=22,bottom=145;
  const x=day=>left+(day-1)*(right-left)/(days-1),y=value=>bottom-value*(bottom-top)/scale;
  const coordinates=values.map((value,i)=>x(i+1)+','+y(value)).join(' ');
  const line='<polyline points="'+coordinates+'" fill="none" stroke-width="2.5" stroke-linejoin="round"/>';
- const maxTick=Math.max(25,Math.ceil(scale/4/25)*25);
- const grid=Array.from({length:Math.floor(scale/maxTick)+1},(_,i)=>i*maxTick).map(value=>'<line x1="'+left+'" x2="'+right+'" y1="'+y(value)+'" y2="'+y(value)+'" class="chart-grid"/><text x="36" y="'+(y(value)+4)+'" text-anchor="end">'+value+'%</text>').join('');
+ const ticks=[0,25,50,75,100,...Array.from({length:Math.max(0,(scale-100)/25)},(_,i)=>125+i*25)];
+ const grid=ticks.map(value=>'<line x1="'+left+'" x2="'+right+'" y1="'+y(value)+'" y2="'+y(value)+'" class="chart-grid"/><text x="36" y="'+(y(value)+4)+'" text-anchor="end">'+value+'%</text>').join('');
  const labels=Array.from({length:days},(_,i)=>i+1).filter(d=>d===1||d%5===0).map(day=>'<text x="'+x(day)+'" y="168" text-anchor="middle">'+day+'</text>').join('');
  const threshold=highest>100?'<line x1="'+left+'" x2="'+right+'" y1="'+y(100)+'" y2="'+y(100)+'" stroke="#a98657" stroke-dasharray="2 3"/><text x="'+right+'" y="'+(y(100)-5)+'" text-anchor="end">100% budget</text>':'';
+ let crossing='';
+ for(let i=0;i<values.length;i++){
+  if(values[i]<100)continue;
+  const previous=i?values[i-1]:0;
+  const day=i===0?1:i+(100-previous)/(values[i]-previous||1);
+  crossing='<line x1="'+x(day)+'" x2="'+x(day)+'" y1="'+top+'" y2="'+bottom+'" stroke="#a98657" stroke-width="1.5" stroke-dasharray="4 3"/>';
+  break;
+ }
  const endpoint='<circle cx="'+x(values.length)+'" cy="'+y(values.at(-1))+'" r="3" fill="'+(values.at(-1)>100?'#b84237':'#36834f')+'"/>';
- return '<section class="card">'+heading+'<svg class="line-chart" viewBox="0 0 320 184" role="img" aria-label="Cumulative spending through day '+values.length+' of '+days+': '+displayNumber(values.at(-1))+'% of monthly budget"><defs><clipPath id="expense-under"><rect width="320" y="'+y(100)+'" height="'+(184-y(100))+'"/></clipPath><clipPath id="expense-over"><rect width="320" height="'+y(100)+'"/></clipPath></defs>'+grid+threshold+'<g clip-path="url(#expense-under)" stroke="#36834f">'+line+'</g><g clip-path="url(#expense-over)" stroke="#b84237">'+line+'</g>'+endpoint+labels+'</svg><small>Day of month · '+displayNumber(values.at(-1))+'% of monthly budget used</small></section>';
+ return '<section class="card">'+heading+'<svg class="line-chart" viewBox="0 0 320 184" role="img" aria-label="Cumulative spending through day '+values.length+' of '+days+': '+displayNumber(values.at(-1))+'% of monthly budget"><defs><clipPath id="expense-under"><rect width="320" y="'+y(100)+'" height="'+(184-y(100))+'"/></clipPath><clipPath id="expense-over"><rect width="320" height="'+y(100)+'"/></clipPath></defs>'+grid+threshold+crossing+'<g clip-path="url(#expense-under)" stroke="#36834f">'+line+'</g><g clip-path="url(#expense-over)" stroke="#b84237">'+line+'</g>'+endpoint+labels+'</svg></section>';
 }
 function trendsScreen(){const buckets=trendBuckets(),data=filtered(),breakdown=spendBreakdown(data),spent=totalSpend(data),top=breakdown.indexOf(Math.max(...breakdown)),fixed=data.filter(m=>m.amount>0&&(m.subscription||m.spendGroup===3)),period={week:'Weekly',month:'Monthly',year:'Yearly'}[trendPeriod],caption={week:'Last 6 weeks',month:'Last 6 months',year:'Last 5 years'}[trendPeriod];
  const now=new Date(),month={start:new Date(now.getFullYear(),now.getMonth(),1).getTime(),end:now.getTime()};

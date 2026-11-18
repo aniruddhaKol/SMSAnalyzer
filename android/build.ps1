@@ -11,7 +11,7 @@ function CheckBuild([string]$step) { if ($LASTEXITCODE -ne 0) { throw "$step fai
 Push-Location $PSScriptRoot
 try {
  Copy-Item -Path (Join-Path $PSScriptRoot '..\ui\*') -Destination (Join-Path $PSScriptRoot 'assets\ui') -Recurse -Force
- New-Item -ItemType Directory -Force -Path work\classes,work\dex,signing,releases\v0.1.162 | Out-Null
+ New-Item -ItemType Directory -Force -Path work\classes,work\dex,signing,releases\v0.1.168 | Out-Null
  if (!(Test-Path -LiteralPath 'signing\smsanalyzer-review.keystore')) {
   & "$jdkTask\bin\keytool.exe" -genkeypair -keystore 'signing\smsanalyzer-review.keystore' -alias smsanalyzer-review -keyalg RSA -keysize 2048 -validity 10000 -storepass android -keypass android -dname 'CN=Aniruddha DuttaChowdhury, OU=ADChowdhury, O=ADChowdhury, C=IN'
   CheckBuild 'Create review signing key'
@@ -28,9 +28,9 @@ try {
  try { & "$buildToolsTask\aapt.exe" add -f '..\unsigned.apk' classes.dex; CheckBuild 'Add DEX' } finally { Pop-Location }
  & "$buildToolsTask\zipalign.exe" -f -p 4 work\unsigned.apk work\aligned.apk
  CheckBuild 'Align APK'
- & "$buildToolsTask\apksigner.bat" sign --ks signing\smsanalyzer-review.keystore --ks-key-alias smsanalyzer-review --ks-pass pass:android --key-pass pass:android --out releases\v0.1.162\smsanalyzer-v0.1.162.apk work\aligned.apk
+ & "$buildToolsTask\apksigner.bat" sign --ks signing\smsanalyzer-review.keystore --ks-key-alias smsanalyzer-review --ks-pass pass:android --key-pass pass:android --out releases\v0.1.168\smsanalyzer-v0.1.168.apk work\aligned.apk
  CheckBuild 'Sign APK'
- & "$buildToolsTask\apksigner.bat" verify --verbose --print-certs releases\v0.1.162\smsanalyzer-v0.1.162.apk
+ & "$buildToolsTask\apksigner.bat" verify --verbose --print-certs releases\v0.1.168\smsanalyzer-v0.1.168.apk
  CheckBuild 'Verify APK'
 } finally { Pop-Location }
 

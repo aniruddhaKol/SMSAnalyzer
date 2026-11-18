@@ -470,5 +470,23 @@ function knowledgeMerchant(text){const key=knowledgeKey(text);return GENERIC_KNO
 const KNOWLEDGE_MATCHERS=GENERIC_KNOWLEDGE.merchants.map(entry=>({entry,patterns:entry.aliases.filter(a=>knowledgeKey(a).length>3&&!['apollo','reliance'].includes(knowledgeKey(a))).map(a=>new RegExp('(^|[^a-z0-9])'+a.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')+'([^a-z0-9]|$)','i'))}));
 function knowledgeFromRecord(m){if(m.category==='Personal'&&!m.debit&&!m.credit)return null;if(m.payee)return knowledgeMerchant(m.payee.label)||null;const source=catalogueMerchant(m.sender,true);if(source){const entry=knowledgeMerchant(source.name);if(entry)return entry;}const text=m.body.replace(/https?:\/\/\S+/gi,'');return KNOWLEDGE_MATCHERS.find(e=>e.patterns.some(p=>p.test(text)))?.entry;}
 
-function initKnowledgeCategories(){const candidate=JSON.parse(JSON.stringify(training));let changed=false;const core=[...trainingCore.names,...trainingCore.groups,'Other'];for(const entry of GENERIC_KNOWLEDGE.merchants){if(core.includes(entry.category)||candidate.categories.some(c=>c.name.toLowerCase()===entry.category.toLowerCase()))continue;candidate.categories.push({id:'generic-'+knowledgeKey(entry.category),name:entry.category,color:'#66899c'});changed=true;}if(changed){persistTraining(candidate);training=candidate;}}
-function applyGenericKnowledge(m,config){const entry=knowledgeFromRecord(m);if(!entry||m.isOtp||m.spam)return;if(m.payee)m.payee={...m.payee,label:entry.name,key:knowledgeKey(entry.name).toUpperCase()};else if(m.debit>0&&catalogueMerchant(entry.name)?.category!=='Payments')m.payee=payeeIdentity(entry.name);if(entry.topic==='Orders')m.isEcommerce=true;if(m.amount>0){const index=trainingCore.names.indexOf(entry.category);if(index>=0){m.spendGroup=index;if(index===3)m.isEmiRepayment=true;}else{const custom=config.categories.findIndex(c=>c.name.toLowerCase()===entry.category.toLowerCase());if(custom<0&&trainingCore.groups.includes(entry.category))m.group=trainingCore.groups.indexOf(entry.category);if(custom>=0){m.spendGroup=trainingCore.names.length+custom;m.group=trainingCore.groups.length+custom;m.customCategoryId=config.categories[custom].id;}}}else if(!m.credit&&entry.topic==='Orders')m.group=4;}
+const catalogueCategoryMappings={Fashion:'Shopping',Beauty:'Shopping','Food delivery':'Food & Dining',Telecom:'Bills & Utilities',Electronics:'Shopping',Pharmacy:'Healthcare','Home & furniture':'Shopping',Payments:'Others'};
+function catalogueCategoryName(name,config){
+ if(config.categories.some(c=>c.name===name&&!c.id.startsWith('generic-')))return name;
+ return catalogueCategoryMappings[name]||name;
+}
+function initKnowledgeCategories(){
+ const candidate=trainingClone(training),replacements=new Map();
+ candidate.categories=candidate.categories.filter(category=>{
+  const name=catalogueCategoryMappings[category.name];
+  if(!name||category.id!=='generic-'+knowledgeKey(category.name))return true;
+  const spend=trainingCore.names.indexOf(name);
+  replacements.set(category.id,spend>=0?String(spend):'topic:'+trainingCore.groups.indexOf(name));
+  return false;
+ });
+ if(!replacements.size)return;
+ for(const rule of [...candidate.rules,...(candidate.corrections||[])])if(replacements.has(rule.category))rule.category=replacements.get(rule.category);
+ persistTraining(candidate);training=candidate;
+}
+
+function applyGenericKnowledge(m,config){const found=knowledgeFromRecord(m);if(!found||m.isOtp||m.spam)return;const entry={...found,category:catalogueCategoryName(found.category,config)};if(m.payee)m.payee={...m.payee,label:entry.name,key:knowledgeKey(entry.name).toUpperCase()};else if(m.debit>0&&catalogueMerchant(entry.name)?.category!=='Payments')m.payee=payeeIdentity(entry.name);if(entry.topic==='Orders')m.isEcommerce=true;if(m.amount>0){const index=trainingCore.names.indexOf(entry.category);if(index>=0){m.spendGroup=index;if(index===3)m.isEmiRepayment=true;}else{const custom=config.categories.findIndex(c=>c.name.toLowerCase()===entry.category.toLowerCase());if(custom<0&&trainingCore.groups.includes(entry.category))m.group=trainingCore.groups.indexOf(entry.category);if(custom>=0){m.spendGroup=trainingCore.names.length+custom;m.group=trainingCore.groups.length+custom;m.customCategoryId=config.categories[custom].id;}}}else if(!m.credit&&entry.topic==='Orders')m.group=4;}
