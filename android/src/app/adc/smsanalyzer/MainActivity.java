@@ -31,7 +31,8 @@ public class MainActivity extends Activity {
   web.getSettings().setAllowContentAccess(false);
   web.getSettings().setAllowFileAccessFromFileURLs(false);
   web.getSettings().setAllowUniversalAccessFromFileURLs(false);
-  WebView.setWebContentsDebuggingEnabled(true);
+  // WebView DevTools exposes loaded SMS; allow it only in -DebugBuild APKs.
+  WebView.setWebContentsDebuggingEnabled((getApplicationInfo().flags&android.content.pm.ApplicationInfo.FLAG_DEBUGGABLE)!=0);
   web.addJavascriptInterface(new Bridge(),"Android");
   web.setWebViewClient(new WebViewClient(){
    @Override public WebResourceResponse shouldInterceptRequest(WebView view,WebResourceRequest request){Uri uri=request.getUrl();if(!"https".equals(uri.getScheme())||!"appassets.androidplatform.net".equals(uri.getHost()))return null;String path=uri.getPath();if(path==null||!path.startsWith("/assets/ui/")||path.contains(".."))return new WebResourceResponse("text/plain","UTF-8",new java.io.ByteArrayInputStream(new byte[0]));try{String asset=path.substring("/assets/".length()),mime=asset.endsWith(".js")?"text/javascript":asset.endsWith(".css")?"text/css":asset.endsWith(".html")?"text/html":asset.endsWith(".svg")?"image/svg+xml":asset.endsWith(".gif")?"image/gif":asset.endsWith(".png")?"image/png":asset.endsWith(".ttf")?"font/ttf":asset.endsWith(".json")?"application/json":"application/octet-stream";return new WebResourceResponse(mime,"UTF-8",getAssets().open(asset));}catch(java.io.IOException e){return new WebResourceResponse("text/plain","UTF-8",new java.io.ByteArrayInputStream(new byte[0]));}}

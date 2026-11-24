@@ -2,11 +2,11 @@
 
 Android SMS insights and local learning by **Aniruddha DuttaChowdhury** · **ADChowdhury**.
 
-**Latest source version:** 0.1.170 · **Application ID:** `app.adc.smsanalyzer`
+**Latest source version:** 0.1.171 · **Application ID:** `app.adc.smsanalyzer`
 
-[Latest published APK](https://github.com/aniruddhaKol/SMSAnalyzer/releases/latest) · [Published v0.1.170 release notes](docs/release-v0.1.170.md) · [Screenshot details](docs/SCREENSHOTS.md)
+[Latest published APK](https://github.com/aniruddhaKol/SMSAnalyzer/releases/latest) · [Published v0.1.171 release notes](docs/release-v0.1.171.md) · [Screenshot details](docs/SCREENSHOTS.md)
 
-Latest changes are described in [the v0.1.170 release notes](docs/release-v0.1.170.md).
+Latest changes are described in [the v0.1.171 release notes](docs/release-v0.1.171.md) and [the v0.1.170 release notes](docs/release-v0.1.170.md).
 
 SMSAnalyzer reads permitted inbox messages on the device, identifies payments and credits, groups spending, and lets you correct classifications through a Learning Centre. The interface follows the TaskVilla Wood, Stone, Brick and BookShelves themes.
 
@@ -58,11 +58,11 @@ SMS interpretation is heuristic: unsupported wording, unclear ownership, transac
 
 ## Install
 
-The current source and latest published APK are v0.1.170. This release makes startup fast in every case (about one second on a Galaxy S25 with about 5,300 SMS, previously up to 78 seconds) and stores the archive unencrypted. Analysis results are unchanged.
+The current source and latest published APK are v0.1.171, a non-debuggable release build of v0.1.170. v0.1.170 made startup fast in every case (about one second on a Galaxy S25 with about 5,300 SMS, previously up to 78 seconds) and stores the archive unencrypted. Analysis results are unchanged.
 
-Download `smsanalyzer-v0.1.170.apk` from the [release](https://github.com/aniruddhaKol/SMSAnalyzer/releases/tag/v0.1.170), install it on Android 8.0/API 26 or newer, then grant SMS access when requested. Pull down on Home to refresh. Google Play Protect may block browser-downloaded APKs requesting SMS access; a valid signature does not guarantee installation approval.
+Download `smsanalyzer-v0.1.171.apk` from the [release](https://github.com/aniruddhaKol/SMSAnalyzer/releases/tag/v0.1.171), install it on Android 8.0/API 26 or newer, then grant SMS access when requested. Pull down on Home to refresh. Google Play Protect may block browser-downloaded APKs requesting SMS access; a valid signature does not guarantee installation approval.
 
-This is the current development/review build. The released APK retains the existing signing identity for compatible updates. A locally rebuilt APK signed with a different key cannot replace that installation as an in-place update.
+Published APKs are release builds: they are not debuggable and WebView debugging is off. The released APK retains the existing signing identity for compatible updates. A locally rebuilt APK signed with a different key cannot replace that installation as an in-place update.
 
 ## Source layout
 
@@ -80,10 +80,11 @@ This is the current development/review build. The released APK retains the exist
 Requires Windows PowerShell, Android SDK platform 36/build-tools 36.0.0 and JDK 27 (the existing script uses `C:/jdk-27`). The SDK defaults to `%LOCALAPPDATA%/Android/Sdk`; set `ANDROID_HOME` to use another location.
 
 ```powershell
-./android/build.ps1
+./android/build.ps1             # release APK (not debuggable)
+./android/build.ps1 -DebugBuild # debuggable APK for USB/WebView debugging on a test phone
 ```
 
-The script uses the existing local review keystore when present and generates a new local review key when it is absent. Signing files are ignored by Git. Keep the original key privately if producing updates for existing installations; generating another key changes signature compatibility. Output is written under `android/releases/v0.1.170/`.
+The script uses the existing local review keystore when present and generates a new local review key when it is absent. Signing files are ignored by Git. Keep the original key privately if producing updates for existing installations; generating another key changes signature compatibility. Output is written under `android/releases/v0.1.171/` (`-debug.apk` suffix for debug builds).
 
 ## Reproduce screenshots
 
@@ -98,7 +99,7 @@ Use `SCREENSHOT_BROWSER` to choose another installed Playwright Chromium channel
 
 ## Validation
 
-The v0.1.170 build was installed on Galaxy S25 as an in-place update with the existing signing certificate. With about 5,300 archived SMS, cold starts took about 0.9 s with a saved analysis, about 1.1 s after new SMS or a catalogue change, and about 1.2 s with no saved analysis. A full re-analysis produced output identical to v0.1.168 for every record. After the background conversion, every archived SMS matched its original fingerprint and the archive revision was unchanged.
+The v0.1.171 release build was installed on Galaxy S25 over v0.1.170 and opened Home in about 0.45 s with a saved analysis; `run-as` access is refused. The v0.1.170 build was installed on Galaxy S25 as an in-place update with the existing signing certificate. With about 5,300 archived SMS, cold starts took about 0.9 s with a saved analysis, about 1.1 s after new SMS or a catalogue change, and about 1.2 s with no saved analysis. A full re-analysis produced output identical to v0.1.168 for every record. After the background conversion, every archived SMS matched its original fingerprint and the archive revision was unchanged.
 
 The Android v0.1.66 build was installed on Galaxy S25 with the existing package and signing certificate. Live checks confirmed account editing/removal, saved-rule preservation, alphabetical selectors and upcoming-bill SMS previews. The notice-card alignment was checked against native screenshot pixels, including the visible SVG stroke and number glyphs. Device captures and inboxes are private and excluded from this repository.
 

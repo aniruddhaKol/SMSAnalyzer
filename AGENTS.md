@@ -48,3 +48,5 @@ For optical icon/text alignment, measure the painted SVG path including its stro
 ## Startup performance
 
 Home must open in about a second. Never block Home on a full re-analysis: when the saved analysis is outdated (new SMS, rules or catalogue rows), show it at once, read only the SMS it lacks and refresh in the background. Keep merchant/payee lookups indexed or memoised per catalogue load; never scan the whole catalogue per SMS and rule. Measure cold starts on the phone (`SMSAnalyzerLoad` logcat lines) after changes to loading, classification or the catalogue, and confirm full-analysis output is unchanged.
+
+Published and phone-installed APKs must be release builds (`android/build.ps1`, not debuggable, WebView debugging off). Use `-DebugBuild` only for temporary on-device debugging, then reinstall the release build.
