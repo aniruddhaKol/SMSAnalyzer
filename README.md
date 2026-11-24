@@ -2,17 +2,17 @@
 
 Android SMS insights and local learning by **Aniruddha DuttaChowdhury** · **ADChowdhury**.
 
-**Latest source version:** 0.1.127 · **Application ID:** `app.adc.smsanalyzer`
+**Latest source version:** 0.1.170 · **Application ID:** `app.adc.smsanalyzer`
 
-[Latest published APK](https://github.com/aniruddhaKol/SMSAnalyzer/releases/latest) · [Published v0.1.127 release notes](docs/release-v0.1.127.md) · [Screenshot details](docs/SCREENSHOTS.md)
+[Latest published APK](https://github.com/aniruddhaKol/SMSAnalyzer/releases/latest) · [Published v0.1.170 release notes](docs/release-v0.1.170.md) · [Screenshot details](docs/SCREENSHOTS.md)
 
-Latest changes are described in [the v0.1.127 release notes](docs/release-v0.1.127.md).
+Latest changes are described in [the v0.1.170 release notes](docs/release-v0.1.170.md).
 
 SMSAnalyzer reads permitted inbox messages on the device, identifies payments and credits, groups spending, and lets you correct classifications through a Learning Centre. The interface follows the TaskVilla Wood, Stone, Brick and BookShelves themes.
 
 ## Screenshots
 
-These are actual v0.1.127 interface renders with **synthetic sample SMS**, not a real inbox. Native Android system bars are not included. Select an image to see it at full resolution.
+These are actual v0.1.127 interface renders with **synthetic sample SMS**, not a real inbox. The interface has not changed in ways that affect these views since then. Native Android system bars are not included. Select an image to see it at full resolution.
 
 | Home overview · Wood | Top payee · Stone |
 | --- | --- |
@@ -44,21 +44,23 @@ These are actual v0.1.127 interface renders with **synthetic sample SMS**, not a
 - Pull to refresh; long-press displayed SMS content to copy the full message. Dropdowns dismiss on outside taps. Buttons show a matching pressed bevel before activation.
 - Categories uses a donut for SMS category-tag shares; Home uses expense amounts. Unified Travel and Food & Dining choices preserve existing corrections.
 - Learning management provides Recipients, My accounts, Rules and Categories tabs. Custom categories support names, emoji and colours; default names remain fixed. Bill and flagged-SMS lists reuse category review/editing.
-- Encrypted analysis caching restores Home before background inbox scanning. Large cache payloads are read in bounded chunks to avoid Android SQLite cursor limits.
+- Fast startup: Home opens from the saved analysis in about a second. When new SMS, rules or catalogue rows arrive, the saved analysis is shown at once and only the missing SMS are read; the full analysis then refreshes Home in the background. Large cache payloads are read in bounded chunks to avoid Android SQLite cursor limits.
+- Merchant and payee lookups are indexed once per catalogue load, so a full analysis of about 5,000 SMS takes around a second on a current phone.
+- Bank and merchant catalogues sync silently from a public Supabase catalogue at most once every 24 hours. Only the catalogue's last-updated time is sent; no SMS or personal data leaves the phone.
 
 ## Data and privacy
 
-The Android shell requests **READ_SMS**. It does not request Internet or SMS-send permissions. Original imported SMS payloads are retained in an encrypted local SQLite archive using an Android Keystore key; analysis and learning remain on the device. Refresh adds records without purging messages removed from the inbox. There is no automatic archive expiry.
+The Android shell requests **READ_SMS** and **INTERNET**. Internet is used only for the public bank/merchant catalogue sync; SMS are never uploaded. It does not request SMS-send permission. Original imported SMS are retained as plain JSON in a local SQLite archive in the app's private storage, protected by the Android app sandbox, device encryption and disabled app backup. Since v0.1.170 the archive is no longer encrypted with an Android Keystore key: inbox SMS are already readable by any app holding SMS permission, and per-message Keystore decryption made cold starts take over a minute. Rows written by earlier versions are converted once in the background after upgrading. Analysis and learning remain on the device. Refresh adds records without purging messages removed from the inbox. There is no automatic archive expiry.
 
-Import runs on app open and pull to refresh. Messages deleted before their first import cannot be recovered. Uninstalling or clearing app data removes the local archive and key. The UI has no archive/export block; an export is performed only following an explicit request outside the app. Personal inboxes, learned recipient data, archives and signing keys are not included in this repository or release assets.
+Import runs on app open and pull to refresh. Messages deleted before their first import cannot be recovered. Uninstalling or clearing app data removes the local archive. The UI has no archive/export block; an export is performed only following an explicit request outside the app. Personal inboxes, learned recipient data, archives and signing keys are not included in this repository or release assets.
 
 SMS interpretation is heuristic: unsupported wording, unclear ownership, transaction-date formats and overlapping alerts can affect results. The app keeps originals available for review. It does not send or delete inbox SMS.
 
 ## Install
 
-The current source and latest published APK are v0.1.85. This release fixes large analysis-cache reads and restores cached Home data before background inbox scanning. It also includes unified category choices, editable bill/spam SMS, category appearance controls, the Categories donut and consistent themed controls.
+The current source and latest published APK are v0.1.170. This release makes startup fast in every case (about one second on a Galaxy S25 with about 5,300 SMS, previously up to 78 seconds) and stores the archive unencrypted. Analysis results are unchanged.
 
-Download `smsanalyzer-v0.1.85.apk` from the [release](https://github.com/aniruddhaKol/SMSAnalyzer/releases/tag/v0.1.85), install it on Android 8.0/API 26 or newer, then grant SMS access when requested. Pull down on Home to refresh. Google Play Protect may block browser-downloaded APKs requesting SMS access; a valid signature does not guarantee installation approval.
+Download `smsanalyzer-v0.1.170.apk` from the [release](https://github.com/aniruddhaKol/SMSAnalyzer/releases/tag/v0.1.170), install it on Android 8.0/API 26 or newer, then grant SMS access when requested. Pull down on Home to refresh. Google Play Protect may block browser-downloaded APKs requesting SMS access; a valid signature does not guarantee installation approval.
 
 This is the current development/review build. The released APK retains the existing signing identity for compatible updates. A locally rebuilt APK signed with a different key cannot replace that installation as an in-place update.
 
@@ -67,7 +69,7 @@ This is the current development/review build. The released APK retains the exist
 | Path | Purpose |
 | --- | --- |
 | `ui/` | HTML/CSS/JavaScript interface, classification, learning and assets |
-| `android/src/` | Java WebView shell and encrypted SQLite archive |
+| `android/src/` | Java WebView shell, local SQLite archive and catalogue sync |
 | `android/res/` | Android resources and launcher artwork |
 | `android/build.ps1` | Build, align and sign the APK; copies `ui/` into Android assets |
 | `docs/screenshots/` | Eight synthetic-data screenshots embedded above |
@@ -75,13 +77,13 @@ This is the current development/review build. The released APK retains the exist
 
 ## Build
 
-Requires Windows PowerShell, Android SDK platform 36/build-tools 36.0.0 and JDK 27 (the existing script uses `C:/jdk-27`). The SDK defaults to `%LOCALAPPDATA%/Android/Sdk`.
+Requires Windows PowerShell, Android SDK platform 36/build-tools 36.0.0 and JDK 27 (the existing script uses `C:/jdk-27`). The SDK defaults to `%LOCALAPPDATA%/Android/Sdk`; set `ANDROID_HOME` to use another location.
 
 ```powershell
 ./android/build.ps1
 ```
 
-The script uses the existing local review keystore when present and generates a new local review key when it is absent. Signing files are ignored by Git. Keep the original key privately if producing updates for existing installations; generating another key changes signature compatibility. Output is written under `android/releases/v0.1.85/`.
+The script uses the existing local review keystore when present and generates a new local review key when it is absent. Signing files are ignored by Git. Keep the original key privately if producing updates for existing installations; generating another key changes signature compatibility. Output is written under `android/releases/v0.1.170/`.
 
 ## Reproduce screenshots
 
@@ -96,6 +98,8 @@ Use `SCREENSHOT_BROWSER` to choose another installed Playwright Chromium channel
 
 ## Validation
 
+The v0.1.170 build was installed on Galaxy S25 as an in-place update with the existing signing certificate. With about 5,300 archived SMS, cold starts took about 0.9 s with a saved analysis, about 1.1 s after new SMS or a catalogue change, and about 1.2 s with no saved analysis. A full re-analysis produced output identical to v0.1.168 for every record. After the background conversion, every archived SMS matched its original fingerprint and the archive revision was unchanged.
+
 The Android v0.1.66 build was installed on Galaxy S25 with the existing package and signing certificate. Live checks confirmed account editing/removal, saved-rule preservation, alphabetical selectors and upcoming-bill SMS previews. The notice-card alignment was checked against native screenshot pixels, including the visible SVG stroke and number glyphs. Device captures and inboxes are private and excluded from this repository.
 
 With Node.js, Playwright and Microsoft Edge available, run:
@@ -109,7 +113,7 @@ node scripts/verify-bank-accounts.cjs
 node scripts/verify-overview-alerts.cjs
 ```
 
-These synthetic regressions cover dropdown dismissal and period restoration, newest-category precedence and undo, fixed preview actions, ownership and duplicate guards, compact controls, account detection and removal confirmation, sorted selectors, upcoming dates and SMS pagination. Earlier archive/encryption and native clipboard checks are documented in the [historical version guide](docs/v0.1.54-guide.md).
+These synthetic regressions cover dropdown dismissal and period restoration, newest-category precedence and undo, fixed preview actions, ownership and duplicate guards, compact controls, account detection and removal confirmation, sorted selectors, upcoming dates and SMS pagination. Earlier archive/encryption (before v0.1.170) and native clipboard checks are documented in the [historical version guide](docs/v0.1.54-guide.md).
 
 ## Attribution
 

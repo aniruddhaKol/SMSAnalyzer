@@ -504,4 +504,25 @@ const MERCHANT_CATALOGUE=[
 ,{"name":"Bistro","category":"Food & Dining","aliases":["Bistro","Bistro by Blinkit"],"domain":"bistro.blinkit.com","key":"bistro","icon":"assets/brands/catalogue-bistro.png","headerStatus":"Suggested keywords; not verified sender registrations"}
 ] ;
 const catalogueKey=value=>String(value||'').toLowerCase().replace(/[^a-z0-9]/g,'');
-function catalogueMerchant(value,sender=false){let text=String(value||'').trim().replace(/\s+(?:account|card)$/i,'');if(sender)text=text.replace(/^[a-z]{2}[- ]/i,'').replace(/[-_][psgt]$/i,'');const key=catalogueKey(text);const alias=!sender&&(/^(?:uberindia(?:syste|systems?)(?:privat(?:e)?(?:limited|ltd)?)?\d*(?:rzprxairtel)?)$/.test(key)?'uber':/^paytm(?:services|travel|app)$/.test(key)?'paytm':null);if(alias)return MERCHANT_CATALOGUE.find(e=>e.key===alias);return MERCHANT_CATALOGUE.find(e=>e.aliases.some(a=>(sender||catalogueKey(a).length>3||catalogueKey(a)===catalogueKey(e.name)||/\d/.test(a))&&catalogueKey(a)===key))||MERCHANT_CATALOGUE.find(e=>{const name=catalogueKey(e.name);return key.startsWith(name)&&/^(?:pvt|private|limited|ltd|india|internet|commerce|technologies|payments|com|in)+$/.test(key.slice(name.length));});}
+// Alias lookups are indexed once per catalogue revision; analysis calls this for every SMS and rule.
+let merchantIndex=null;const merchantLookupCache=new Map();
+function invalidateMerchantIndex(){merchantIndex=null;merchantLookupCache.clear();if(typeof payeeIdentityCache!=='undefined')payeeIdentityCache.clear();}
+function buildMerchantIndex(){
+ const any=new Map(),strict=new Map(),names=[];
+ for(const e of MERCHANT_CATALOGUE){
+  const name=catalogueKey(e.name);names.push([name,e]);
+  for(const a of e.aliases||[]){const k=catalogueKey(a);if(!any.has(k))any.set(k,e);if((k.length>3||k===name||/\d/.test(a))&&!strict.has(k))strict.set(k,e);}
+ }
+ return {any,strict,names,size:MERCHANT_CATALOGUE.length};
+}
+function catalogueMerchant(value,sender=false){
+ if(!merchantIndex||merchantIndex.size!==MERCHANT_CATALOGUE.length){merchantIndex=buildMerchantIndex();merchantLookupCache.clear();if(typeof payeeIdentityCache!=='undefined')payeeIdentityCache.clear();}
+ const cacheKey=(sender?'1':'0')+String(value||'');
+ if(merchantLookupCache.has(cacheKey))return merchantLookupCache.get(cacheKey);
+ let text=String(value||'').trim().replace(/\s+(?:account|card)$/i,'');if(sender)text=text.replace(/^[a-z]{2}[- ]/i,'').replace(/[-_][psgt]$/i,'');const key=catalogueKey(text);
+ const alias=!sender&&(/^(?:uberindia(?:syste|systems?)(?:privat(?:e)?(?:limited|ltd)?)?\d*(?:rzprxairtel)?)$/.test(key)?'uber':/^paytm(?:services|travel|app)$/.test(key)?'paytm':null);
+ let found;
+ if(alias)found=MERCHANT_CATALOGUE.find(e=>e.key===alias);
+ else{found=(sender?merchantIndex.any:merchantIndex.strict).get(key);if(!found)found=merchantIndex.names.find(([name])=>key.startsWith(name)&&/^(?:pvt|private|limited|ltd|india|internet|commerce|technologies|payments|com|in)+$/.test(key.slice(name.length)))?.[1];}
+ merchantLookupCache.set(cacheKey,found);return found;
+}

@@ -51,8 +51,10 @@ public class MainActivity extends Activity {
  private void syncViewport(){
   if(web==null||web.getHeight()<=0)return;
   float height=web.getHeight()/getResources().getDisplayMetrics().density;
-  web.evaluateJavascript("document.documentElement.style.setProperty('--app-height','"+height+"px')",null);
+  web.evaluateJavascript("document.documentElement&&document.documentElement.style.setProperty('--app-height','"+height+"px')",null);
  }
+ /** The readable version prefix lets a stale snapshot be reused only by the same analysis version. */
+ private String signature(String revision,String training,String version) throws Exception {return ANALYSIS_VERSION+":"+archive.analysisSignature(revision,training,version);}
  private boolean allowed(){return checkSelfPermission(Manifest.permission.READ_SMS)==PackageManager.PERMISSION_GRANTED;}
  private void notifyError(String s){runOnUiThread(()->web.evaluateJavascript("window.nativeError("+JSONObject.quote(s)+")",null));}
  private void loadSms(){loadSms(false);}
@@ -84,13 +86,29 @@ public class MainActivity extends Activity {
     }
     String revision=archive.readMarkerRevision();if(revision==null)revision=archive.revision();
     String training=getSharedPreferences("settings",0).getString("training",""),catalogueRevision=catalogue.revision(),version=ANALYSIS_VERSION+"|"+catalogueRevision;
-    JSONObject snapshot=archive.readAnalysis(archive.analysisSignature(revision,training,version));
-    data=snapshot==null?archive.readAll():snapshot.getJSONArray("raw");String analysis=snapshot==null?"null":snapshot.getJSONArray("analysed").toString();
-    String result=data.toString();JSONObject meta=new JSONObject();meta.put("catalogueRevision",catalogueRevision);meta.put("loadMs",android.os.SystemClock.elapsedRealtime()-started);meta.put("archiveRevision",revision);meta.put("cacheHit",snapshot!=null);meta.put("count",data.length());meta.put("added",added);meta.put("retention","indefinite");meta.put("encrypted",true);String summary=meta.toString();
+    long readStarted=android.os.SystemClock.elapsedRealtime();
+    JSONObject snapshot=archive.readAnalysis(signature(revision,training,version));boolean stale=false;int[] sinceCache={0};
+    if(snapshot==null){
+     // Show the previous analysis at once and let the page re-analyse in the background.
+     JSONObject previous=archive.readLatestAnalysis(ANALYSIS_VERSION+":");JSONArray merged=previous==null?null:archive.mergeSnapshot(previous.getJSONArray("raw"),sinceCache);
+     if(merged!=null){snapshot=previous;data=merged;stale=true;}
+    }
+    if(snapshot==null)data=archive.readAll();else if(!stale)data=snapshot.getJSONArray("raw");
+    String analysis=snapshot==null?"null":snapshot.getJSONArray("analysed").toString();
+    android.util.Log.i("SMSAnalyzerLoad","archiveReadMs="+(android.os.SystemClock.elapsedRealtime()-readStarted)+" cache="+(snapshot==null?"none":stale?"stale":"hit")+" sinceCache="+sinceCache[0]+" count="+data.length());
+    String result=data.toString();JSONObject meta=new JSONObject();meta.put("catalogueRevision",catalogueRevision);meta.put("loadMs",android.os.SystemClock.elapsedRealtime()-started);meta.put("archiveRevision",revision);meta.put("cacheHit",snapshot!=null&&!stale);meta.put("stale",stale);meta.put("sinceCache",sinceCache[0]);meta.put("count",data.length());meta.put("added",added);meta.put("retention","indefinite");meta.put("encrypted",false);String summary=meta.toString();
     runOnUiThread(()->web.evaluateJavascript("window.nativeMessages("+result+","+summary+","+analysis+")",value->android.util.Log.i("SMSAnalyzerLoad","fullHomeReadyMs="+(android.os.SystemClock.elapsedRealtime()-started))));
+    convertArchiveOnce();
    }catch(Exception e){notifyError("Could not load the SMS archive. Your stored messages were kept. Check available device storage and try again.");}
    finally{reading=false;}
   }).start();
+ }
+ private boolean converting;
+ /** One-time background conversion of rows encrypted by earlier versions; Home is already on screen. */
+ private synchronized void convertArchiveOnce(){
+  if(converting)return;converting=true;
+  new Thread(()->{long t=android.os.SystemClock.elapsedRealtime();int total=0;try{Thread.sleep(3000);for(int n;(n=archive.convertToPlain(250))>0;)total+=n;}catch(Exception ignored){/* Remaining rows stay readable and convert on a later start. */}
+   if(total>0)android.util.Log.i("SMSAnalyzerLoad","convertedToPlain="+total+" ms="+(android.os.SystemClock.elapsedRealtime()-t));}).start();
  }
  private void syncCatalogue(){
   if(!catalogue.beginSync())return;
@@ -99,7 +117,7 @@ public class MainActivity extends Activity {
  public class Bridge {
   @JavascriptInterface public String getCatalogue(){return catalogue.read();}
   @JavascriptInterface public void startup(){runOnUiThread(()->loadSms(true));}
-  @JavascriptInterface public void saveAnalysisCache(String revision,String json){if(json==null||json.length()>33554432)return;final String training=getSharedPreferences("settings",0).getString("training","");new Thread(()->{try{if(!revision.equals(archive.revision()))return;String catalogueVersion=new JSONObject(json).optString("catalogueRevision","0");if(!catalogueVersion.equals(catalogue.revision()))return;String version=ANALYSIS_VERSION+"|"+catalogueVersion;archive.saveAnalysis(archive.analysisSignature(revision,training,version),json);}catch(Exception ignored){/* Optional cache cannot prevent SMS loading. */}}).start();}
+  @JavascriptInterface public void saveAnalysisCache(String revision,String json){if(json==null||json.length()>33554432)return;final String training=getSharedPreferences("settings",0).getString("training","");new Thread(()->{try{if(!revision.equals(archive.revision()))return;String catalogueVersion=new JSONObject(json).optString("catalogueRevision","0");if(!catalogueVersion.equals(catalogue.revision()))return;String version=ANALYSIS_VERSION+"|"+catalogueVersion;archive.saveAnalysis(signature(revision,training,version),json);}catch(Exception ignored){/* Optional cache cannot prevent SMS loading. */}}).start();}
 
   @JavascriptInterface public boolean copySms(String text){if(text==null)return false;try{android.content.ClipboardManager clipboard=(android.content.ClipboardManager)getSystemService(CLIPBOARD_SERVICE);clipboard.setPrimaryClip(android.content.ClipData.newPlainText("SMS",text));return true;}catch(Exception e){return false;}}
   @JavascriptInterface public String getTraining(){return getSharedPreferences("settings",0).getString("training","");}

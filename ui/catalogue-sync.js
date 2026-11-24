@@ -23,6 +23,7 @@ function applyRemoteCatalogue(catalogue){
  }
  KNOWLEDGE_MATCHERS.splice(0,KNOWLEDGE_MATCHERS.length,...GENERIC_KNOWLEDGE.merchants.map(entry=>({entry,patterns:entry.aliases.filter(a=>knowledgeKey(a).length>3&&!['apollo','reliance'].includes(knowledgeKey(a))).map(a=>new RegExp('(^|[^a-z0-9])'+a.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')+'([^a-z0-9]|$)','i'))})));
  if(typeof brandKeyCache!=='undefined')brandKeyCache.clear();
+ if(typeof invalidateMerchantIndex==='function')invalidateMerchantIndex();
  remoteCatalogue=catalogue;
  return true;
 }
