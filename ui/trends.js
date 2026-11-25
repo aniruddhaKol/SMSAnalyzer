@@ -30,21 +30,24 @@ function expenseTrendChart(now=new Date()){
  for(const m of monthlyBudgetRecords(now))daily[new Date(m.date).getDate()-1]+=spendAmount(m);
  let spent=0;
  const totals=daily.slice(0,now.getDate()).map(amount=>spent+=amount),values=totals.map(total=>total/budget*100);
- const highest=Math.max(...values),normalizedMax=Math.round(highest*100)/100,scale=normalizedMax<=100?100:(Math.floor(normalizedMax/25)+1)*25;
+ const highest=Math.max(...values),normalizedMax=Math.round(highest*100)/100;
+ // At most six label intervals, so far-over-budget months keep readable axis labels.
+ const step=[25,50,100,200,500,1000].find(s=>normalizedMax<=s*6)||Math.ceil(normalizedMax/6000)*1000,scale=normalizedMax<=100?100:(Math.floor(normalizedMax/step)+1)*step;
  const left=44,right=300,top=22,bottom=145;
  const x=day=>left+(day-1)*(right-left)/(days-1),y=value=>bottom-value*(bottom-top)/scale;
  const coordinates=values.map((value,i)=>x(i+1)+','+y(value)).join(' ');
  const line='<polyline points="'+coordinates+'" fill="none" stroke-width="2.5" stroke-linejoin="round"/>';
- const ticks=[0,25,50,75,100,...Array.from({length:Math.max(0,(scale-100)/25)},(_,i)=>125+i*25)];
+ const ticks=Array.from({length:scale/step+1},(_,i)=>i*step);
  const grid=ticks.map(value=>'<line x1="'+left+'" x2="'+right+'" y1="'+y(value)+'" y2="'+y(value)+'" class="chart-grid"/><text x="36" y="'+(y(value)+4)+'" text-anchor="end">'+value+'%</text>').join('');
  const labels=Array.from({length:days},(_,i)=>i+1).filter(d=>d===1||d%5===0).map(day=>'<text x="'+x(day)+'" y="168" text-anchor="middle">'+day+'</text>').join('');
- const threshold=highest>100?'<line x1="'+left+'" x2="'+right+'" y1="'+y(100)+'" y2="'+y(100)+'" stroke="#a98657" stroke-dasharray="2 3"/><text x="'+(left+4)+'" y="'+(y(100)-5)+'" text-anchor="start">100% budget</text>':'';
- let crossing='';
+ // The label sits on the side away from where the budget was crossed, so it never covers that marker.
+ const threshold=()=>{if(!(highest>100))return '';const atRight=crossingX!==null&&crossingX<(left+right)/2;return '<line x1="'+left+'" x2="'+right+'" y1="'+y(100)+'" y2="'+y(100)+'" stroke="#a98657" stroke-dasharray="2 3"/><text x="'+(atRight?right-4:left+4)+'" y="'+(y(100)-5)+'" text-anchor="'+(atRight?'end':'start')+'">100% budget</text>';};
+ let crossing='',crossingX=null;
  for(let i=0;i<values.length;i++){
   if(values[i]<100)continue;
   const previous=i?values[i-1]:0;
   const day=i===0?1:i+(100-previous)/(values[i]-previous||1);
-  crossing='<line x1="'+x(day)+'" x2="'+x(day)+'" y1="'+top+'" y2="'+bottom+'" stroke="#a98657" stroke-width="1.5" stroke-dasharray="4 3"/>';
+  crossingX=x(day);crossing='<line x1="'+x(day)+'" x2="'+x(day)+'" y1="'+top+'" y2="'+bottom+'" stroke="#a98657" stroke-width="1.5" stroke-dasharray="4 3"/>';
   break;
  }
  // Tappable markers: first spend, budget reached and today; the selected point is described below the chart.
@@ -53,7 +56,7 @@ function expenseTrendChart(now=new Date()){
  mark(values.findIndex(value=>value>=100),'Budget reached','#a98657');
  mark(values.length-1,'Current',values.at(-1)>100?'#b84237':'#36834f');
  const endpoint=[...markers].map(([i,m])=>'<circle class="expense-point" cx="'+x(i+1)+'" cy="'+y(values[i])+'" r="3.6" fill="'+m.color+'" stroke="#faf7f1" stroke-width="1.5"><title>'+esc(m.labels.join(' · ')+' · '+date(new Date(now.getFullYear(),now.getMonth(),i+1))+': '+money(totals[i])+' ('+displayNumber(values[i])+'% of budget)')+'</title></circle>').join('');
- return '<section class="card">'+heading+'<svg class="line-chart expense-trend-chart" viewBox="0 0 320 184" role="img" aria-label="Cumulative spending through day '+values.length+' of '+days+': '+displayNumber(values.at(-1))+'% of monthly budget"><defs><clipPath id="expense-under"><rect width="320" y="'+y(100)+'" height="'+(184-y(100))+'"/></clipPath><clipPath id="expense-over"><rect width="320" height="'+y(100)+'"/></clipPath></defs>'+grid+threshold+crossing+'<g clip-path="url(#expense-under)" stroke="#36834f">'+line+'</g><g clip-path="url(#expense-over)" stroke="#b84237">'+line+'</g>'+endpoint+labels+'</svg></section>';
+ return '<section class="card">'+heading+'<svg class="line-chart expense-trend-chart" viewBox="0 0 320 184" role="img" aria-label="Cumulative spending through day '+values.length+' of '+days+': '+displayNumber(values.at(-1))+'% of monthly budget"><defs><clipPath id="expense-under"><rect width="320" y="'+y(100)+'" height="'+(184-y(100))+'"/></clipPath><clipPath id="expense-over"><rect width="320" height="'+y(100)+'"/></clipPath></defs>'+grid+threshold()+crossing+'<g clip-path="url(#expense-under)" stroke="#36834f">'+line+'</g><g clip-path="url(#expense-over)" stroke="#b84237">'+line+'</g>'+endpoint+labels+'</svg></section>';
 }
 // Spend by source: which card or account the current month's money left from.
 // Gross counts every debit (EMI, transfers, card-bill payments) except self transfers and duplicates; Net applies Home's spend rules.

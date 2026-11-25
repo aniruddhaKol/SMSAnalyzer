@@ -1,7 +1,7 @@
 # Release builds are not debuggable. Use -DebugBuild for USB/WebView debugging on a test phone.
 param([switch]$DebugBuild)
 $ErrorActionPreference = 'Stop'
-$version = '0.1.172'
+$version = '0.1.173'
 $apkName = if ($DebugBuild) { "smsanalyzer-v$version-debug.apk" } else { "smsanalyzer-v$version.apk" }
 $debugArgs = @(); if ($DebugBuild) { $debugArgs = @('--debug-mode') }
 # Author: Aniruddha DuttaChowdhury · ADChowdhury
