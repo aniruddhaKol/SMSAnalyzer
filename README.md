@@ -2,11 +2,11 @@
 
 Android SMS insights and local learning by **Aniruddha DuttaChowdhury** · **ADChowdhury**.
 
-**Latest source version:** 0.1.171 · **Application ID:** `app.adc.smsanalyzer`
+**Latest source version:** 0.1.172 · **Application ID:** `app.adc.smsanalyzer`
 
-[Latest published APK](https://github.com/aniruddhaKol/SMSAnalyzer/releases/latest) · [Published v0.1.171 release notes](docs/release-v0.1.171.md) · [Screenshot details](docs/SCREENSHOTS.md)
+[Latest published APK](https://github.com/aniruddhaKol/SMSAnalyzer/releases/latest) · [Published v0.1.172 release notes](docs/release-v0.1.172.md) · [Screenshot details](docs/SCREENSHOTS.md)
 
-Latest changes are described in [the v0.1.171 release notes](docs/release-v0.1.171.md) and [the v0.1.170 release notes](docs/release-v0.1.170.md).
+Latest changes are described in [the v0.1.172 release notes](docs/release-v0.1.172.md).
 
 SMSAnalyzer reads permitted inbox messages on the device, identifies payments and credits, groups spending, and lets you correct classifications through a Learning Centre. The interface follows the TaskVilla Wood, Stone, Brick and BookShelves themes.
 
@@ -39,7 +39,8 @@ These are actual v0.1.127 interface renders with **synthetic sample SMS**, not a
 - Learning Centre under Settings: correct recipients, categories, income and self-transfers; preview historical matches; save reusable rules or individual corrections; undo saved corrections; add custom categories.
 - Owned accounts can be saved with account types and aliases, or detected from repeated source-account transaction evidence. Internal transfers between verified owned accounts are excluded from both spending and income; uncertain transfers remain Others.
 - An offline catalogue includes 1,520 institution entries, including historical names. Official logos are bundled where retrieved; other entries use neutral bank symbols. Bank and account-type selectors are alphabetically sorted.
-- Bills due includes detected upcoming dates beyond the current week and opens the original SMS. Home notice cards use painted icon edges and number glyph bounds for optical alignment.
+- Bills due includes detected upcoming dates beyond the current week and opens the original SMS; bill rows use the 🧾 receipt icon.
+- Trends: the Expense trend marks the first spend, the day the monthly budget was reached and today; tap a dot for its date, cumulative amount and budget percentage. **Spend by source** shows a donut of the current month's spend per card or account, with **Gross Spend** (every debit, including EMI, transfers and card-bill payments, excluding self transfers and duplicates) and **Net Spend** (spend as counted on Home) tabs. Home notice cards use painted icon edges and number glyph bounds for optical alignment.
 - Conservative multipart reconstruction and related-message learning. Separate messages are not merged merely because they arrive together.
 - Pull to refresh; long-press displayed SMS content to copy the full message. Dropdowns dismiss on outside taps. Buttons show a matching pressed bevel before activation.
 - Categories uses a donut for SMS category-tag shares; Home uses expense amounts. Unified Travel and Food & Dining choices preserve existing corrections.
@@ -58,9 +59,9 @@ SMS interpretation is heuristic: unsupported wording, unclear ownership, transac
 
 ## Install
 
-The current source and latest published APK are v0.1.171, a non-debuggable release build of v0.1.170. v0.1.170 made startup fast in every case (about one second on a Galaxy S25 with about 5,300 SMS, previously up to 78 seconds) and stores the archive unencrypted. Analysis results are unchanged.
+The current source and latest published APK are v0.1.172, a non-debuggable release build. It adds Expense trend markers, the Spend by source donut and the receipt bill icon. v0.1.170 made startup fast in every case (about one second on a Galaxy S25 with about 5,300 SMS, previously up to 78 seconds) and stores the archive unencrypted. Analysis results are unchanged.
 
-Download `smsanalyzer-v0.1.171.apk` from the [release](https://github.com/aniruddhaKol/SMSAnalyzer/releases/tag/v0.1.171), install it on Android 8.0/API 26 or newer, then grant SMS access when requested. Pull down on Home to refresh. Google Play Protect may block browser-downloaded APKs requesting SMS access; a valid signature does not guarantee installation approval.
+Download `smsanalyzer-v0.1.172.apk` from the [release](https://github.com/aniruddhaKol/SMSAnalyzer/releases/tag/v0.1.172), install it on Android 8.0/API 26 or newer, then grant SMS access when requested. Pull down on Home to refresh. Google Play Protect may block browser-downloaded APKs requesting SMS access; a valid signature does not guarantee installation approval.
 
 Published APKs are release builds: they are not debuggable and WebView debugging is off. The released APK retains the existing signing identity for compatible updates. A locally rebuilt APK signed with a different key cannot replace that installation as an in-place update.
 
@@ -84,7 +85,7 @@ Requires Windows PowerShell, Android SDK platform 36/build-tools 36.0.0 and JDK 
 ./android/build.ps1 -DebugBuild # debuggable APK for USB/WebView debugging on a test phone
 ```
 
-The script uses the existing local review keystore when present and generates a new local review key when it is absent. Signing files are ignored by Git. Keep the original key privately if producing updates for existing installations; generating another key changes signature compatibility. Output is written under `android/releases/v0.1.171/` (`-debug.apk` suffix for debug builds).
+The script uses the existing local review keystore when present and generates a new local review key when it is absent. Signing files are ignored by Git. Keep the original key privately if producing updates for existing installations; generating another key changes signature compatibility. Output is written under `android/releases/v0.1.172/` (`-debug.apk` suffix for debug builds).
 
 ## Reproduce screenshots
 
@@ -99,7 +100,7 @@ Use `SCREENSHOT_BROWSER` to choose another installed Playwright Chromium channel
 
 ## Validation
 
-The v0.1.171 release build was installed on Galaxy S25 over v0.1.170 and opened Home in about 0.45 s with a saved analysis; `run-as` access is refused. The v0.1.170 build was installed on Galaxy S25 as an in-place update with the existing signing certificate. With about 5,300 archived SMS, cold starts took about 0.9 s with a saved analysis, about 1.1 s after new SMS or a catalogue change, and about 1.2 s with no saved analysis. A full re-analysis produced output identical to v0.1.168 for every record. After the background conversion, every archived SMS matched its original fingerprint and the archive revision was unchanged.
+The v0.1.172 release build was installed on Galaxy S25; Home opened in about 0.5 s, and the Spend by source Net total matched Home's spend exactly. The v0.1.171 release build was installed on Galaxy S25 over v0.1.170 and opened Home in about 0.45 s with a saved analysis; `run-as` access is refused. The v0.1.170 build was installed on Galaxy S25 as an in-place update with the existing signing certificate. With about 5,300 archived SMS, cold starts took about 0.9 s with a saved analysis, about 1.1 s after new SMS or a catalogue change, and about 1.2 s with no saved analysis. A full re-analysis produced output identical to v0.1.168 for every record. After the background conversion, every archived SMS matched its original fingerprint and the archive revision was unchanged.
 
 The Android v0.1.66 build was installed on Galaxy S25 with the existing package and signing certificate. Live checks confirmed account editing/removal, saved-rule preservation, alphabetical selectors and upcoming-bill SMS previews. The notice-card alignment was checked against native screenshot pixels, including the visible SVG stroke and number glyphs. Device captures and inboxes are private and excluded from this repository.
 

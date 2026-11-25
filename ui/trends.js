@@ -29,7 +29,7 @@ function expenseTrendChart(now=new Date()){
  const daily=Array(days).fill(0);
  for(const m of monthlyBudgetRecords(now))daily[new Date(m.date).getDate()-1]+=spendAmount(m);
  let spent=0;
- const values=daily.slice(0,now.getDate()).map(amount=>(spent+=amount)/budget*100);
+ const totals=daily.slice(0,now.getDate()).map(amount=>spent+=amount),values=totals.map(total=>total/budget*100);
  const highest=Math.max(...values),normalizedMax=Math.round(highest*100)/100,scale=normalizedMax<=100?100:(Math.floor(normalizedMax/25)+1)*25;
  const left=44,right=300,top=22,bottom=145;
  const x=day=>left+(day-1)*(right-left)/(days-1),y=value=>bottom-value*(bottom-top)/scale;
@@ -38,7 +38,7 @@ function expenseTrendChart(now=new Date()){
  const ticks=[0,25,50,75,100,...Array.from({length:Math.max(0,(scale-100)/25)},(_,i)=>125+i*25)];
  const grid=ticks.map(value=>'<line x1="'+left+'" x2="'+right+'" y1="'+y(value)+'" y2="'+y(value)+'" class="chart-grid"/><text x="36" y="'+(y(value)+4)+'" text-anchor="end">'+value+'%</text>').join('');
  const labels=Array.from({length:days},(_,i)=>i+1).filter(d=>d===1||d%5===0).map(day=>'<text x="'+x(day)+'" y="168" text-anchor="middle">'+day+'</text>').join('');
- const threshold=highest>100?'<line x1="'+left+'" x2="'+right+'" y1="'+y(100)+'" y2="'+y(100)+'" stroke="#a98657" stroke-dasharray="2 3"/><text x="'+right+'" y="'+(y(100)-5)+'" text-anchor="end">100% budget</text>':'';
+ const threshold=highest>100?'<line x1="'+left+'" x2="'+right+'" y1="'+y(100)+'" y2="'+y(100)+'" stroke="#a98657" stroke-dasharray="2 3"/><text x="'+(left+4)+'" y="'+(y(100)-5)+'" text-anchor="start">100% budget</text>':'';
  let crossing='';
  for(let i=0;i<values.length;i++){
   if(values[i]<100)continue;
@@ -47,13 +47,48 @@ function expenseTrendChart(now=new Date()){
   crossing='<line x1="'+x(day)+'" x2="'+x(day)+'" y1="'+top+'" y2="'+bottom+'" stroke="#a98657" stroke-width="1.5" stroke-dasharray="4 3"/>';
   break;
  }
- const endpoint='<circle cx="'+x(values.length)+'" cy="'+y(values.at(-1))+'" r="3" fill="'+(values.at(-1)>100?'#b84237':'#36834f')+'"/>';
- return '<section class="card">'+heading+'<svg class="line-chart" viewBox="0 0 320 184" role="img" aria-label="Cumulative spending through day '+values.length+' of '+days+': '+displayNumber(values.at(-1))+'% of monthly budget"><defs><clipPath id="expense-under"><rect width="320" y="'+y(100)+'" height="'+(184-y(100))+'"/></clipPath><clipPath id="expense-over"><rect width="320" height="'+y(100)+'"/></clipPath></defs>'+grid+threshold+crossing+'<g clip-path="url(#expense-under)" stroke="#36834f">'+line+'</g><g clip-path="url(#expense-over)" stroke="#b84237">'+line+'</g>'+endpoint+labels+'</svg></section>';
+ // Tappable markers: first spend, budget reached and today; the selected point is described below the chart.
+ const markers=new Map(),mark=(i,label,color)=>{if(i<0)return;const existing=markers.get(i);if(existing)existing.labels.push(label);else markers.set(i,{labels:[label],color});};
+ mark(daily.findIndex((amount,i)=>i<values.length&&amount>0),'First spend','#654633');
+ mark(values.findIndex(value=>value>=100),'Budget reached','#a98657');
+ mark(values.length-1,'Current',values.at(-1)>100?'#b84237':'#36834f');
+ const endpoint=[...markers].map(([i,m])=>'<circle class="expense-point" cx="'+x(i+1)+'" cy="'+y(values[i])+'" r="3.6" fill="'+m.color+'" stroke="#faf7f1" stroke-width="1.5"><title>'+esc(m.labels.join(' · ')+' · '+date(new Date(now.getFullYear(),now.getMonth(),i+1))+': '+money(totals[i])+' ('+displayNumber(values[i])+'% of budget)')+'</title></circle>').join('');
+ return '<section class="card">'+heading+'<svg class="line-chart expense-trend-chart" viewBox="0 0 320 184" role="img" aria-label="Cumulative spending through day '+values.length+' of '+days+': '+displayNumber(values.at(-1))+'% of monthly budget"><defs><clipPath id="expense-under"><rect width="320" y="'+y(100)+'" height="'+(184-y(100))+'"/></clipPath><clipPath id="expense-over"><rect width="320" height="'+y(100)+'"/></clipPath></defs>'+grid+threshold+crossing+'<g clip-path="url(#expense-under)" stroke="#36834f">'+line+'</g><g clip-path="url(#expense-over)" stroke="#b84237">'+line+'</g>'+endpoint+labels+'</svg></section>';
 }
+// Spend by source: which card or account the current month's money left from.
+// Gross counts every debit (EMI, transfers, card-bill payments) except self transfers and duplicates; Net applies Home's spend rules.
+let sourceSpendMode='gross';
+const sourceColors=['#f0a030','#2fae74','#8a63d6','#2f95d8','#e0507c','#d8b13c','#8798a6'];
+function grossSpendAmount(m){return m.duplicate||m.ignored||isSelfTransfer(m)?0:m.debit||0;}
+function spendSource(m){
+ const sender=m.source||merchantIdentity(m.sender),bank=sender.label,last4=m.sourceAccount,token=value=>String(value||'').toLowerCase().replace(/bank|ltd|limited|[^a-z0-9]/g,'');
+ if(last4){
+  const owned=training.accounts.filter(a=>a.last4===last4),account=owned.find(a=>token(lookupBank(a.bank)?.name||a.bank)===token(bank))||owned[0];
+  if(account)return {key:'account:'+account.id,label:(account.name||lookupBank(account.bank)?.name||account.bank)+' ••'+last4,detail:accountTypeLabel(account.type)};
+  return {key:'last4:'+sender.key+'|'+last4,label:bank+' ••'+last4,detail:'Not in My accounts'};
+ }
+ return bank?{key:'bank:'+sender.key,label:bank,detail:'Account not stated'}:{key:'unidentified',label:'Unidentified source',detail:'Payment app or account not stated'};
+}
+function spendSourceSlices(rows,mode){
+ const sources=new Map();
+ for(const m of rows){const amount=mode==='gross'?grossSpendAmount(m):spendAmount(m);if(!(amount>0))continue;const source=spendSource(m),entry=sources.get(source.key)||{...source,amount:0};entry.amount+=amount;sources.set(source.key,entry);}
+ const sorted=[...sources.values()].sort((a,b)=>b.amount-a.amount);
+ if(sorted.length<=sourceColors.length)return sorted;
+ const rest=sorted.slice(sourceColors.length-1);
+ return [...sorted.slice(0,sourceColors.length-1),{key:'others',label:'Other sources',detail:rest.length+' sources',amount:rest.reduce((sum,s)=>sum+s.amount,0)}];
+}
+function sourceSpendCard(now=new Date()){
+ const slices=spendSourceSlices(monthlyBudgetRecords(now),sourceSpendMode),total=slices.reduce((sum,s)=>sum+s.amount,0);
+ const tabs='<div class="trend-tabs source-tabs" role="group" aria-label="Spend measure">'+[['gross','Gross Spend'],['net','Net Spend']].map(([mode,label])=>'<button data-source-mode="'+mode+'" aria-pressed="'+(sourceSpendMode===mode)+'" class="'+(sourceSpendMode===mode?'selected':'')+'">'+label+'</button>').join('')+'</div>';
+ let angle=0;const stops=slices.map((s,i)=>{const start=angle;angle+=s.amount/total*360;return sourceColors[i]+' '+start+'deg '+angle+'deg';});
+ const body=total>0?'<div class="source-pie-layout"><div class="source-donut" role="img" aria-label="'+esc((sourceSpendMode==='gross'?'Gross':'Net')+' spend '+money(total)+': '+slices.map(s=>s.label+' '+Math.round(s.amount/total*100)+'%').join(', '))+'" style="background:conic-gradient('+stops.join(',')+')"><div class="source-donut-center"><small>'+(sourceSpendMode==='gross'?'Gross':'Net')+'</small><strong>'+compactMoney(total)+'</strong></div></div><div class="source-legend"><div class="source-total"><span>Total</span><b>'+money(total)+'</b></div>'+slices.map((s,i)=>'<div><span class="dot" style="background-color:'+sourceColors[i]+'"></span><span><strong>'+esc(s.label)+'</strong><small>'+esc(s.detail)+'</small></span><b>'+money(s.amount)+'</b><em>'+Math.round(s.amount/total*100)+'%</em></div>').join('')+'</div></div>':'<p class="muted">No debits detected this month.</p>';
+ return '<section class="card source-spend-card"><div class="split section-heading"><h2>Spend by source</h2><small class="trend-period-pill">'+ic('calendar')+'Current month</small></div>'+tabs+body+'</section>';
+}
+document.addEventListener('click',e=>{const button=e.target.closest('[data-source-mode]');if(!button||button.dataset.sourceMode===sourceSpendMode)return;sourceSpendMode=button.dataset.sourceMode;const card=button.closest('.source-spend-card'),main=document.querySelector('main'),scroll=main.scrollTop,next=document.createElement('div');next.innerHTML=sourceSpendCard();card.replaceWith(next.firstElementChild);main.scrollTop=scroll;});
 function trendsScreen(){const buckets=trendBuckets(),data=filtered(),breakdown=spendBreakdown(data),spent=totalSpend(data),top=breakdown.indexOf(Math.max(...breakdown)),fixed=data.filter(m=>m.amount>0&&(m.subscription||m.spendGroup===3)),period={week:'Weekly',month:'Monthly',year:'Yearly'}[trendPeriod],caption={week:'Last 6 weeks',month:'Last 6 months',year:'Last 5 years'}[trendPeriod];
  const now=new Date(),month={start:new Date(now.getFullYear(),now.getMonth(),1).getTime(),end:now.getTime()};
  const tabs='<div class="trend-tabs" role="group" aria-label="Trend period">'+['week','month','year'].map(p=>'<button data-trend="'+p+'" aria-pressed="'+(trendPeriod===p)+'" class="'+(trendPeriod===p?'selected':'')+'">'+p[0].toUpperCase()+p.slice(1)+'</button>').join('')+'</div>';
- return expenseTrendChart()+'<section class="card trend-weekday-bars"><div class="split section-heading"><h2>Spend by weekday</h2><small class="trend-period-pill">'+ic('calendar')+'Current month</small></div>'+weekdayChart(monthlyBudgetRecords(now),month,false)+'</section>'+tabs+'<section class="card trend-category-chart"><div class="split section-heading"><h2>Spend by category</h2><small class="trend-period-pill">'+ic('calendar')+caption+'</small></div>'+multiSeriesLineChart(buckets,trendCategorySeries(buckets),'Amounts by category')+'</section><section class="card trend-weekday-lines"><div class="split section-heading"><h2>Spend by weekday</h2><small class="trend-period-pill">'+ic('calendar')+caption+'</small></div>'+multiSeriesLineChart(buckets,trendWeekdaySeries(buckets),'Weekday spending by period')+'</section><section class="card"><h2>Insights</h2><div class="row">'+ic('chart')+'<div>'+(spent?esc(spendNames[top])+' leads with '+flowMoney(breakdown[top],'debit')+', '+displayNumber(breakdown[top]/spent*100)+'% of spend.':'No spending detected in this period.')+'</div></div><div class="row">'+ic('calendar')+'<div>EMI and subscription debit alerts total '+flowMoney(totalSpend(fixed),'debit')+' in this period.</div></div></section>';
+ return expenseTrendChart()+sourceSpendCard()+'<section class="card trend-weekday-bars"><div class="split section-heading"><h2>Spend by weekday</h2><small class="trend-period-pill">'+ic('calendar')+'Current month</small></div>'+weekdayChart(monthlyBudgetRecords(now),month,false)+'</section>'+tabs+'<section class="card trend-category-chart"><div class="split section-heading"><h2>Spend by category</h2><small class="trend-period-pill">'+ic('calendar')+caption+'</small></div>'+multiSeriesLineChart(buckets,trendCategorySeries(buckets),'Amounts by category')+'</section><section class="card trend-weekday-lines"><div class="split section-heading"><h2>Spend by weekday</h2><small class="trend-period-pill">'+ic('calendar')+caption+'</small></div>'+multiSeriesLineChart(buckets,trendWeekdaySeries(buckets),'Weekday spending by period')+'</section><section class="card"><h2>Insights</h2><div class="row">'+ic('chart')+'<div>'+(spent?esc(spendNames[top])+' leads with '+flowMoney(breakdown[top],'debit')+', '+displayNumber(breakdown[top]/spent*100)+'% of spend.':'No spending detected in this period.')+'</div></div><div class="row">'+ic('calendar')+'<div>EMI and subscription debit alerts total '+flowMoney(totalSpend(fixed),'debit')+' in this period.</div></div></section>';
 }
 
 document.addEventListener('click',e=>{
@@ -83,4 +118,4 @@ function selectTrendPoint(svg,clientX,clientY){
  if(!output){output=document.createElement('output');output.className='trend-tap-value';output.setAttribute('aria-live','polite');svg.after(output);}
  output.textContent=nearest.querySelector('title')?.textContent||'';
 }
-document.addEventListener('click',e=>{const svg=e.target.closest('.multi-series-chart');if(svg)selectTrendPoint(svg,e.clientX,e.clientY);});
+document.addEventListener('click',e=>{const svg=e.target.closest('.multi-series-chart,.expense-trend-chart');if(svg)selectTrendPoint(svg,e.clientX,e.clientY);});
