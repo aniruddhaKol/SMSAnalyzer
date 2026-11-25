@@ -7,7 +7,7 @@ const fs=require('node:fs'),path=require('node:path');
  const page=await browser.newPage({viewport:{width:393,height:852},deviceScaleFactor:2,timezoneId:'Asia/Kolkata'});
  const errors=[];page.on('pageerror',e=>errors.push(e.message));
  await page.clock.setFixedTime(new Date('2026-10-27T12:00:00+05:30'));
- await page.addInitScript(()=>localStorage.setItem('smsanalyzer.settings',JSON.stringify({started:true,theme:'wood',range:30,durationVersion:1,budget:15000,payeeScope:'all'})));
+ await page.addInitScript(()=>localStorage.setItem('smsanalyzer.settings',JSON.stringify({started:true,theme:'wood',range:30,durationVersion:1,budget:50000,payeeScope:'all'})));
  await require('./ui-server.cjs').openUi(page);
  await page.evaluate(async()=>{
   const now=Date.now(),day=86400000,merchants=['Amazon','Swiggy','Air India','Blinkit','Airtel','Flipkart'];

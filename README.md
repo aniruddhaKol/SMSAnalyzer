@@ -12,7 +12,7 @@ SMSAnalyzer reads permitted inbox messages on the device, identifies payments an
 
 ## Screenshots
 
-These are actual v0.1.127 interface renders with **synthetic sample SMS**, not a real inbox. The interface has not changed in ways that affect these views since then. Native Android system bars are not included. Select an image to see it at full resolution.
+These are actual v0.1.172 interface renders with **synthetic sample SMS** and a ₹50,000 sample budget, not a real inbox. Native Android system bars are not included. Select an image to see it at full resolution.
 
 | Home overview · Wood | Top payee · Stone |
 | --- | --- |
@@ -24,7 +24,7 @@ These are actual v0.1.127 interface renders with **synthetic sample SMS**, not a
 
 | Trends · Wood | Alerts · Brick |
 | --- | --- |
-| <img src="docs/screenshots/trends.png" alt="Spending trends and weekday averages" width="300"> | <img src="docs/screenshots/alerts.png" alt="Bill and message alerts" width="300"> |
+| <img src="docs/screenshots/trends.png" alt="Expense trend with first-spend, budget-reached and current markers, and the Spend by source donut with Gross and Net tabs" width="300"> | <img src="docs/screenshots/alerts.png" alt="Suspicious-message flag, upcoming bills with the receipt icon and subscription notices" width="300"> |
 
 | Settings · Stone | Learning Centre · Wood |
 | --- | --- |
