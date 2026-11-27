@@ -3,9 +3,10 @@
 function completedTransfer(body){return /\b(?:IMPS|NEFT|RTGS|transfer)\s+from\s+(?:a\/?c|account)\b[\s\S]*\b(?:sent|done)\s+from\s+YONO\b/i.test(body)||/\bFT\s+YONO\b[\s\S]*\btxn\s+of\b[\s\S]*\bfrom\s+(?:a\/?c|account)\b/i.test(body);}
 function beneficiaryConfirmation(body){return /\b(?:NEFT|RTGS|IMPS)\b[\s\S]*\bcredited\s+to\s+(?:the\s+)?beneficiary\b/i.test(body);}
 function destinationToken(body){const tail=body.match(/\bto\s+(?!be\b)(?:[^\r\n]{0,60}?\b(?:a\/?c|account)(?:\s+no\.?)?\s*|(?:a\/?c|account)\s*|)([x*]+\d{4}|\d{4,})\b/i);return tail?tail[1].replace(/\D/g,'').slice(-4):null;}
-function confirmedOwnAccount(m,config){return m.sourceKind==='account'&&config.accounts.find(a=>a.bank===m.source.key&&a.last4===m.sourceAccount);}
+function confirmedOwnAccount(m,config){return m.sourceKind==='account'&&config.accounts.find(a=>!isCardAccount(a)&&a.bank===m.source.key&&a.last4===m.sourceAccount);}
 function classifyOwnedTransfers(records,config){
- const accounts=config.accounts||[],aliases=(config.ownAliases||[]).map(trainingKey),active=records.filter(m=>!m.duplicate),eligible=m=>m.trainingAction!=='others'&&!['payment','income','salary','refund','ignore'].includes(m.trainingTreatment)&&!m.loan&&!m.isEmiRepayment&&!/\b(?:penalty|charges?|fee|refund|reversal)\b/i.test(m.body)&&m.transferKind!=='card-settlement';
+// Cards never take part in own-transfer matching; card bills keep their card-settlement treatment.
+ const accounts=(config.accounts||[]).filter(a=>!isCardAccount(a)),aliases=(config.ownAliases||[]).map(trainingKey),active=records.filter(m=>!m.duplicate),eligible=m=>m.trainingAction!=='others'&&!['payment','income','salary','refund','ignore'].includes(m.trainingTreatment)&&!m.loan&&!m.isEmiRepayment&&!/\b(?:penalty|charges?|fee|refund|reversal)\b/i.test(m.body)&&m.transferKind!=='card-settlement';
  const bySourceReference=new Map(),creditsByReference=new Map();
  for(const m of records){if(!m.reference)continue;const key=m.source.key+'|'+m.reference,list=bySourceReference.get(key)||[];list.push(m);bySourceReference.set(key,list);if(!m.duplicate&&m.credit>0){const credits=creditsByReference.get(m.reference)||[];credits.push(m);creditsByReference.set(m.reference,credits);}}
  const own=(m,proof)=>{trainingTreatment(m,'own');m.ownMatch=proof;};

@@ -50,3 +50,11 @@ For optical icon/text alignment, measure the painted SVG path including its stro
 Home must open in about a second. Never block Home on a full re-analysis: when the saved analysis is outdated (new SMS, rules or catalogue rows), show it at once, read only the SMS it lacks and refresh in the background. Keep merchant/payee lookups indexed or memoised per catalogue load; never scan the whole catalogue per SMS and rule. Measure cold starts on the phone (`SMSAnalyzerLoad` logcat lines) after changes to loading, classification or the catalogue, and confirm full-analysis output is unchanged.
 
 Published and phone-installed APKs must be release builds (`android/build.ps1`, not debuggable, WebView debugging off). Use `-DebugBuild` only for temporary on-device debugging, then reinstall the release build.
+
+## Versioning
+
+Versions run x.y.0 to x.y.49, then the next build is x.(y+1).0 (v0.1.174 was followed by 0.2.0). versionCode increases by 1 every build. Bump `APP_VERSION` in `ui/app.js`, `versionName` in `android/AndroidManifest.xml` and `$version` in `android/build.ps1` together.
+
+## Cards and owner name
+
+Detected credit and debit cards label spend sources only; keep them out of own-transfer matching so card-bill payments keep their card-settlement treatment and totals do not change. The owner name is suggested from identity-SMS greetings and saved only after explicit confirmation.

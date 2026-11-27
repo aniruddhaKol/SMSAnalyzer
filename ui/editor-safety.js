@@ -19,7 +19,8 @@ function editorSnapshot(editor){
 const editorBaselines=new WeakMap();let lastLearningBaseline=null;
 function trackEditor(){const editor=activeEditor();if(!editor){if(!(screen==='training'&&learning.step==='matches'))lastLearningBaseline=null;return null;}if(!editorBaselines.has(editor.root)){const initial=editor.kind==='learning'&&lastLearningBaseline?.key===editor.key?lastLearningBaseline.value:editorSnapshot(editor);editorBaselines.set(editor.root,initial);if(editor.kind==='learning')lastLearningBaseline={key:editor.key,value:initial};}return editor;}
 new MutationObserver(trackEditor).observe(document.getElementById('app'),{childList:true,subtree:true});
-new MutationObserver(trackEditor).observe(document.getElementById('dialog-content'),{childList:true,subtree:true});
+// The dialog body is reused, so each newly opened editor needs its own unchanged-state baseline.
+new MutationObserver(mutations=>{const content=document.getElementById('dialog-content');if(mutations.some(m=>m.target===content&&[...m.addedNodes].some(n=>!n.classList?.contains('training-error'))))editorBaselines.delete(content);trackEditor();}).observe(document.getElementById('dialog-content'),{childList:true,subtree:true});
 function flushRuleTokens(root){for(const input of root.querySelectorAll('[data-token-input]'))if(input.value.trim())addRuleToken(input.dataset.tokenInput);}
 function transactionEditorConfig(){
  const key=document.querySelector('#transaction-key').value,config=trainingClone(training),old=editingSingleCorrection?(config.corrections||[]).find(c=>c.id===editingSingleCorrection):null;
